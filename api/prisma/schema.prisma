@@ -1,0 +1,166 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/* =========================
+   Référentiels
+   ========================= */
+
+model Platform {
+  id        Int             @id @default(autoincrement())
+  code      String          @unique   // "PS5", "PC", "XBOX"
+  label     String
+  games     Game[]
+  accounts  PlayerAccount[]
+}
+
+model Side {
+  id         Int      @id @default(autoincrement())
+  code       String   @unique       // "ATTACK", "DEFENSE"
+  label      String
+  operators  Operator[]
+  roundsSide Round[]  @relation("RoundSide")
+  roundsWin  Round[]  @relation("RoundWinningSide")
+}
+
+model GameMode {
+  id    Int     @id @default(autoincrement())
+  code  String  @unique           // "RANKED", "UNRANKED", "CUSTOM"
+  label String
+  games Game[]
+}
+
+model Result {
+  id    Int     @id @default(autoincrement())
+  code  String  @unique           // "WIN", "LOSS"
+  label String
+  games Game[]
+}
+
+/* =========================
+   Principaux
+   ========================= */
+
+model Player {
+  id        Int             @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  email     String          @unique
+  username  String
+  // passwordHash si géré côté API d’auth
+  accounts  PlayerAccount[]
+  games     Game[]
+}
+
+model PlayerAccount {
+  id         Int       @id @default(autoincrement())
+  player     Player    @relation(fields: [playerId], references: [id])
+  playerId   Int
+  platform   Platform  @relation(fields: [platformId], references: [id])
+  platformId Int
+  gamertag   String
+  externalId String?
+
+  @@unique([playerId, platformId])
+  @@index([platformId, gamertag])
+}
+
+model Map {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  games Game[]
+}
+
+model Operator {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  side     Side   @relation(fields: [sideId], references: [id])
+  sideId   Int
+  rounds   Round[]
+}
+
+model Game {
+  id            Int        @id @default(autoincrement())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  date          DateTime?
+
+  player        Player     @relation(fields: [playerId], references: [id])
+  playerId      Int
+
+  map           Map        @relation(fields: [mapId], references: [id])
+  mapId         Int
+
+  mode          GameMode   @relation(fields: [modeId], references: [id])
+  modeId        Int
+
+  platform      Platform   @relation(fields: [platformId], references: [id])
+  platformId    Int
+
+  account       PlayerAccount? @relation(fields: [accountId], references: [id])
+  accountId     Int?
+
+  startingSide  Side?      @relation(fields: [startingSideId], references: [id])
+  startingSideId Int?
+
+  // Dénormalisation utile, dérivable des rounds
+  playerScore   Int        @default(0)
+  opponentScore Int        @default(0)
+  result        Result?    @relation(fields: [resultId], references: [id])
+  resultId      Int?
+
+  overtime      Boolean    @default(false)
+
+  totalKills    Int        @default(0)
+  totalDeaths   Int        @default(0)
+  totalAssists  Int        @default(0)
+  totalPoints   Int        @default(0)
+
+  rounds        Round[]
+
+  @@index([playerId])
+  @@index([mapId])
+  @@index([modeId])
+  @@index([platformId])
+  @@index([date])
+}
+
+model Round {
+  id             Int       @id @default(autoincrement())
+  createdAt      DateTime  @default(now())
+
+  game           Game      @relation(fields: [gameId], references: [id])
+  gameId         Int
+
+  roundNumber    Int
+
+  // Côté joué par le joueur suivi
+  side           Side      @relation("RoundSide", fields: [sideId], references: [id])
+  sideId         Int
+
+  // Côté vainqueur du round (jamais de nul)
+  winningSide    Side      @relation("RoundWinningSide", fields: [winningSideId], references: [id])
+  winningSideId  Int
+
+  operator       Operator? @relation(fields: [operatorId], references: [id])
+  operatorId     Int?
+
+  kills          Int       @default(0)
+  death          Boolean   @default(false)
+  assists        Int       @default(0)
+  disconnected   Boolean   @default(false)
+  points         Int       @default(0)
+
+  @@unique([gameId, roundNumber])
+  @@index([gameId])
+}

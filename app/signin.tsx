@@ -32,39 +32,42 @@ const Signin = () => {
       return;
     }
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: login.email,
-        password: login.password,
-      });
-      console.log(data);
+      const response = await axios.get(`http://192.168.1.91:3000/test`)
+      console.log(response);
 
-      if (error) {
-        // Gérer les erreurs de Supabase (email déjà utilisé, mot de passe trop faible, etc.)
-        console.log('Erreur d\'inscription Supabase:', error);
-        Alert.alert("Erreur d'inscription", error.message);
-        return;
-      }
-      if (data.user) {
+      // const { data, error } = await supabase.auth.signInWithPassword({
+      //   email: login.email,
+      //   password: login.password,
+      // });
+      // console.log(data);
 
-        if (data.user) {
-          const creteUsersInUsersTable = await supabase
-            .from('users')
-            .insert([
-              {
-                id: data.user.id,
-                username: login.username,
-                email: login.email
-              },
-            ]);
+      // if (error) {
+      //   // Gérer les erreurs de Supabase (email déjà utilisé, mot de passe trop faible, etc.)
+      //   console.log('Erreur d\'inscription Supabase:', error);
+      //   Alert.alert("Erreur d'inscription", error.message);
+      //   return;
+      // }
+      // if (data.user) {
 
-          console.log(creteUsersInUsersTable);
-        }
+      //   if (data.user) {
+      //     const creteUsersInUsersTable = await supabase
+      //       .from('users')
+      //       .insert([
+      //         {
+      //           id: data.user.id,
+      //           username: login.username,
+      //           email: login.email
+      //         },
+      //       ]);
 
-        console.log('Inscription réussie. Utilisateur créé:', data.user);
-        Alert.alert("Succès", "Compte créé! Vérifiez votre email pour la confirmation.");
-      } else if (data.session === null && data.user === null) {
-        Alert.alert("Confirmation requise", "Un lien de confirmation a été envoyé à votre adresse email.");
-      }
+      //     console.log(creteUsersInUsersTable);
+      //   }
+
+      //   console.log('Inscription réussie. Utilisateur créé:', data.user);
+      //   Alert.alert("Succès", "Compte créé! Vérifiez votre email pour la confirmation.");
+      // } else if (data.session === null && data.user === null) {
+      //   Alert.alert("Confirmation requise", "Un lien de confirmation a été envoyé à votre adresse email.");
+      // }
 
     } catch (error) {
       console.log("Erreur inattendue:", error);
