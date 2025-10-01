@@ -1,74 +1,60 @@
-import { Link } from "expo-router";
+import { Link, router, useNavigation } from "expo-router";
 import { useState } from "react";
 import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
 
-import { createClient } from '@supabase/supabase-js'
-import { withClamp } from "react-native-reanimated";
 import axios from "axios";
-import { log } from "node:console";
 
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_PROJECT_URL
 
-const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_PROJECT_API_KEY
-//@ts-ignore
-const supabase = createClient(supabaseUrl, supabaseKey)
+const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 
+
+
+type Player = {
+  id: string;
+  username: string;
+  email: string;
+}
 
 const Signin = () => {
+
+
   const [login, setLogin] = useState(
     {
       email: '',
       password: ''
     }
   );
-
-
+  const [player, setPlayer] = useState<Player>({
+    id: '',
+    username: '',
+    email: ''
+  });
 
   const handleLogin = async () => {
-    console.log('coucou');
+
     if (!login.password || !login.email) {
       Alert.alert("Champs requis", "Veuillez renseigner votre email et mot de passe.");
       return;
     }
     try {
-      const response = await axios.get(`http://192.168.1.91:3000/test`)
-      console.log(response);
-
-      // const { data, error } = await supabase.auth.signInWithPassword({
-      //   email: login.email,
-      //   password: login.password,
-      // });
-      // console.log(data);
-
-      // if (error) {
-      //   // Gérer les erreurs de Supabase (email déjà utilisé, mot de passe trop faible, etc.)
-      //   console.log('Erreur d\'inscription Supabase:', error);
-      //   Alert.alert("Erreur d'inscription", error.message);
-      //   return;
-      // }
-      // if (data.user) {
-
-      //   if (data.user) {
-      //     const creteUsersInUsersTable = await supabase
-      //       .from('users')
-      //       .insert([
-      //         {
-      //           id: data.user.id,
-      //           username: login.username,
-      //           email: login.email
-      //         },
-      //       ]);
-
-      //     console.log(creteUsersInUsersTable);
-      //   }
-
-      //   console.log('Inscription réussie. Utilisateur créé:', data.user);
-      //   Alert.alert("Succès", "Compte créé! Vérifiez votre email pour la confirmation.");
-      // } else if (data.session === null && data.user === null) {
-      //   Alert.alert("Confirmation requise", "Un lien de confirmation a été envoyé à votre adresse email.");
-      // }
-
+      const response = await axios.post(`${baseAPIURL}/player/login`,
+        {
+          email: login.email,
+          password: login.password,
+        }
+        
+      )
+   
+      
+      const {player} = response.data
+      setPlayer(player);
+      localStorage.setItem('playerId', player.id);
+      localStorage.setItem('username', player.username);
+      localStorage.setItem('email', player.email);
+      localStorage.setItem('isLoggedIn', "true");
+     
+      router.navigate('./');
     } catch (error) {
       console.log("Erreur inattendue:", error);
       Alert.alert("Erreur", "Une erreur inattendue est survenue.");
@@ -121,12 +107,14 @@ const Signin = () => {
           marginBottom: 12,
         }}
       />
+
+      <Link href="/signup">Créer un compte?</Link>
+      <Link href="/forgotPassword">Mot de passe oublié?</Link>
+
       <View style={{ width: 240, marginBottom: 16 }}>
         <Button title="Se connecter" onPress={handleLogin} />
       </View>
-      <Link href={{ pathname: '/user/[id]', params: { id: 3 } }}
-        style={{ marginBottom: 4 }}>Profil</Link>
-      <Link href="/stats">Stats</Link>
+      
     </View>
   );
 }

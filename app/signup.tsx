@@ -1,16 +1,12 @@
 import { useState } from "react";
 import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
 
-import { createClient } from '@supabase/supabase-js'
+//import { createClient } from '@supabase/supabase-js'
+import { Link } from "expo-router";
+import axios from "axios";
 
 
-
-
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_PROJECT_URL
-
-const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_PROJECT_API_KEY
-//@ts-ignore
-const supabase = createClient(supabaseUrl, supabaseKey)
+const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 
 
 const Signup = () => {
@@ -36,46 +32,18 @@ const Signup = () => {
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const response = await axios.post(`${baseAPIURL}/api/player/signup`, {
         email: credentials.email,
-        password: credentials.password, 
-        options: {
-          data: {
-            username: credentials.username,
-          }
-        }
+        password: credentials.password,
+        username: credentials.username
 
+      }, {
+        //withCredentials: true,
+         headers: {
+          'Content-Type': 'application/json'
+        }
       });
-
-      if (error) {
-        // Gérer les erreurs de Supabase (email déjà utilisé, mot de passe trop faible, etc.)
-        console.log('Erreur d\'inscription Supabase:', error);
-        Alert.alert("Erreur d'inscription", error.message);
-        return;
-      }
-
-
-      if (data.user) {
-
-        if (data.user) {
-          const creteUsersInUsersTable = await supabase
-            .from('users')
-            .insert([
-              {
-                id: data.user.id,
-                username: credentials.username,
-                email: credentials.email
-              },
-            ]);
-
-          console.log(creteUsersInUsersTable);
-        }
-
-        console.log('Inscription réussie. Utilisateur créé:', data.user);
-        Alert.alert("Succès", "Compte créé! Vérifiez votre email pour la confirmation.");
-      } else if (data.session === null && data.user === null) {
-        Alert.alert("Confirmation requise", "Un lien de confirmation a été envoyé à votre adresse email.");
-      }
+    
 
     } catch (error) {
       console.log("Erreur inattendue:", error);
@@ -168,6 +136,7 @@ const Signup = () => {
           marginBottom: 12,
         }}
       />
+      <Link href="/signin">J'ai un compte</Link>
       <View style={{ width: 240, marginBottom: 16 }}>
         <Button title="Créer mon compte" onPress={handleSubmitAccount} />
       </View>
