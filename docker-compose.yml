@@ -1,0 +1,36 @@
+services:
+  r6tracker-api:
+    container_name: r6tracker-api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    volumes:
+      - ./api:/usr/src/api
+      - /usr/src/api/node_modules # CHEMIN CORRECT DANS LE CONTENEUR
+    ports:
+      - 5000:5000
+    env_file:
+      - .env    
+    networks:
+      - r6tracker
+  r6tracker-database:
+    container_name: r6tracker-database
+    image: postgres
+    restart: always
+    ports:
+      - 5433:5432
+    networks:
+      - r6tracker
+    env_file:
+      - .env 
+  r6tracker-adminer:
+    container_name: r6tracker-adminer
+    image: adminer
+    restart: always
+    ports:
+      - 5558:8080
+    networks:
+      - r6tracker
+networks:
+  r6tracker:
+    driver: bridge

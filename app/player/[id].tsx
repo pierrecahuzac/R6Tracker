@@ -2,18 +2,27 @@ import { useEffect, useState } from "react"
 import { View, Text, StyleSheet } from "react-native"
 import axios from 'axios'
 import { useLocalSearchParams } from "expo-router";
-const User = () => {
+
+const Player = () => {
 
     const params = useLocalSearchParams()
-    console.log(params);
+    const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
+
+    
     document.title = `Profil ${params?.id}`;
-    const [user, setUser] = useState<{}>()
+    const [player, setPlayer] = useState<{}>()
     const [loading, setLoading] = useState(false);
-    const fetchUserDatas = async () => {
+
+    const fetchPlayerProfile = async () => {
         setLoading(true)
+        const playerId = params.id
+        
+        
         try {
-            const user = await axios.get('https://randomuser.me/api');
-            setUser(user.data.results[0])
+            const response = await axios.get(`${baseAPIURL}/player/findById/playerId/${playerId}`);
+        
+            setPlayer(response.data);
+
             setLoading(false)
         } catch (error) {
             setLoading(false)
@@ -21,7 +30,7 @@ const User = () => {
         }
     }
     useEffect(() => {
-        fetchUserDatas()
+        fetchPlayerProfile()
     }, [])
     return (
         <View style={styles.userPage}>
@@ -31,12 +40,10 @@ const User = () => {
                     <Text>{params.id}</Text>
                     <Text>Page de l'utilisateur</Text>
 
-                    <Text>{user ?
-                        //@ts-ignore 
-                        user.name.first : ''}</Text>
-                    <Text>{user ?
-                        //@ts-ignore 
-                        user.name.last.toUpperCase() : ''}</Text>
+                    <Text>{player ?
+                        player?.name?.first : ''}</Text>
+                    <Text>{player ?
+                        player?.email?.toUpperCase() : ''}</Text>
                 </>
             }
 
@@ -53,4 +60,4 @@ const styles = StyleSheet.create({
 
 })
 
-export default User
+export default Player

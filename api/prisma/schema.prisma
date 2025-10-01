@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  // output   = "../generated/prisma"
 }
 
 datasource db {
@@ -13,120 +13,127 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/* =========================
-   Référentiels
-   ========================= */
+/**
+ * =========================
+ * Référentiels
+ * =========================
+ */
 
 model Platform {
-  id        Int             @id @default(autoincrement())
-  code      String          @unique   // "PS5", "PC", "XBOX"
-  label     String
-  games     Game[]
-  accounts  PlayerAccount[]
+  id       String          @id @default(uuid())
+  code     String          @unique // "PS5", "PC", "XBOX"
+  label    String
+  games    Game[]
+  accounts PlayerAccount[]
 }
 
 model Side {
-  id         Int      @id @default(autoincrement())
-  code       String   @unique       // "ATTACK", "DEFENSE"
+  id         String     @id @default(uuid())
+  code       String     @unique // "ATTACK", "DEFENSE"
   label      String
   operators  Operator[]
-  roundsSide Round[]  @relation("RoundSide")
-  roundsWin  Round[]  @relation("RoundWinningSide")
+  roundsSide Round[]    @relation("RoundSide")
+  roundsWin  Round[]    @relation("RoundWinningSide")
+  games      Game[] // Ajouté pour la relation inverse
 }
 
 model GameMode {
-  id    Int     @id @default(autoincrement())
-  code  String  @unique           // "RANKED", "UNRANKED", "CUSTOM"
+  id    String @id @default(uuid())
+  code  String @unique // "RANKED", "UNRANKED", "CUSTOM"
   label String
   games Game[]
 }
 
 model Result {
-  id    Int     @id @default(autoincrement())
-  code  String  @unique           // "WIN", "LOSS"
+  id    String @id @default(uuid())
+  code  String @unique // "WIN", "LOSS"
   label String
   games Game[]
 }
 
-/* =========================
-   Principaux
-   ========================= */
+/**
+ * =========================
+ * Principaux
+ * =========================
+ */
 
 model Player {
-  id        Int             @id @default(autoincrement())
+  id        String          @id @default(uuid())
   createdAt DateTime        @default(now())
   email     String          @unique
   username  String
+  password  String
   // passwordHash si géré côté API d’auth
   accounts  PlayerAccount[]
   games     Game[]
 }
 
 model PlayerAccount {
-  id         Int       @id @default(autoincrement())
-  player     Player    @relation(fields: [playerId], references: [id])
-  playerId   Int
-  platform   Platform  @relation(fields: [platformId], references: [id])
-  platformId Int
+  id         String   @id @default(uuid())
+  player     Player   @relation(fields: [playerId], references: [id])
+  playerId   String
+  platform   Platform @relation(fields: [platformId], references: [id])
+  platformId String
   gamertag   String
   externalId String?
+  games      Game[] // Ajouté pour la relation inverse
 
   @@unique([playerId, platformId])
   @@index([platformId, gamertag])
 }
 
 model Map {
-  id    Int     @id @default(autoincrement())
-  name  String  @unique
+  id    String @id @default(uuid())
+  name  String @unique
   games Game[]
 }
 
 model Operator {
-  id       Int    @id @default(autoincrement())
-  name     String @unique
-  side     Side   @relation(fields: [sideId], references: [id])
-  sideId   Int
-  rounds   Round[]
+  id     String  @id @default(uuid())
+  name   String  @unique
+  side   Side    @relation(fields: [sideId], references: [id])
+  sideId String
+  rounds Round[]
 }
 
 model Game {
-  id            Int        @id @default(autoincrement())
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  date          DateTime?
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  date      DateTime?
 
-  player        Player     @relation(fields: [playerId], references: [id])
-  playerId      Int
+  player   Player @relation(fields: [playerId], references: [id])
+  playerId String
 
-  map           Map        @relation(fields: [mapId], references: [id])
-  mapId         Int
+  map   Map    @relation(fields: [mapId], references: [id])
+  mapId String
 
-  mode          GameMode   @relation(fields: [modeId], references: [id])
-  modeId        Int
+  mode   GameMode @relation(fields: [modeId], references: [id])
+  modeId String
 
-  platform      Platform   @relation(fields: [platformId], references: [id])
-  platformId    Int
+  platform   Platform @relation(fields: [platformId], references: [id])
+  platformId String
 
-  account       PlayerAccount? @relation(fields: [accountId], references: [id])
-  accountId     Int?
+  account   PlayerAccount? @relation(fields: [accountId], references: [id])
+  accountId String?
 
-  startingSide  Side?      @relation(fields: [startingSideId], references: [id])
-  startingSideId Int?
+  startingSide   Side?   @relation(fields: [startingSideId], references: [id])
+  startingSideId String?
 
   // Dénormalisation utile, dérivable des rounds
-  playerScore   Int        @default(0)
-  opponentScore Int        @default(0)
-  result        Result?    @relation(fields: [resultId], references: [id])
-  resultId      Int?
+  playerScore   Int     @default(0)
+  opponentScore Int     @default(0)
+  result        Result? @relation(fields: [resultId], references: [id])
+  resultId      String?
 
-  overtime      Boolean    @default(false)
+  overtime Boolean @default(false)
 
-  totalKills    Int        @default(0)
-  totalDeaths   Int        @default(0)
-  totalAssists  Int        @default(0)
-  totalPoints   Int        @default(0)
+  totalKills   Int @default(0)
+  totalDeaths  Int @default(0)
+  totalAssists Int @default(0)
+  totalPoints  Int @default(0)
 
-  rounds        Round[]
+  rounds Round[]
 
   @@index([playerId])
   @@index([mapId])
@@ -136,30 +143,30 @@ model Game {
 }
 
 model Round {
-  id             Int       @id @default(autoincrement())
-  createdAt      DateTime  @default(now())
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
 
-  game           Game      @relation(fields: [gameId], references: [id])
-  gameId         Int
+  game   Game   @relation(fields: [gameId], references: [id])
+  gameId String
 
-  roundNumber    Int
+  roundNumber Int
 
   // Côté joué par le joueur suivi
-  side           Side      @relation("RoundSide", fields: [sideId], references: [id])
-  sideId         Int
+  side   Side   @relation("RoundSide", fields: [sideId], references: [id])
+  sideId String
 
   // Côté vainqueur du round (jamais de nul)
-  winningSide    Side      @relation("RoundWinningSide", fields: [winningSideId], references: [id])
-  winningSideId  Int
+  winningSide   Side   @relation("RoundWinningSide", fields: [winningSideId], references: [id])
+  winningSideId String
 
-  operator       Operator? @relation(fields: [operatorId], references: [id])
-  operatorId     Int?
+  operator   Operator? @relation(fields: [operatorId], references: [id])
+  operatorId String?
 
-  kills          Int       @default(0)
-  death          Boolean   @default(false)
-  assists        Int       @default(0)
-  disconnected   Boolean   @default(false)
-  points         Int       @default(0)
+  kills        Int     @default(0)
+  death        Boolean @default(false)
+  assists      Int     @default(0)
+  disconnected Boolean @default(false)
+  points       Int     @default(0)
 
   @@unique([gameId, roundNumber])
   @@index([gameId])
