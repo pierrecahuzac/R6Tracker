@@ -5,7 +5,7 @@ const PlayerController = require("./controller");
 
 
 router.post(
-  "/createUser",
+  "/signup",
   PlayerController.signup
 );
 router.post(

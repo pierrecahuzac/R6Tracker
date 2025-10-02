@@ -8,6 +8,8 @@ import axios from "axios";
 
 const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 
+console.log(baseAPIURL);
+
 
 
 type Player = {
@@ -21,8 +23,8 @@ const Signin = () => {
 
   const [login, setLogin] = useState(
     {
-      email: '',
-      password: ''
+      email: 'test@est.fr',
+      password: 'test'
     }
   );
   const [player, setPlayer] = useState<Player>({
@@ -53,7 +55,7 @@ const Signin = () => {
       localStorage.setItem('username', player.username);
       localStorage.setItem('email', player.email);
       localStorage.setItem('isLoggedIn', "true");
-     
+
       router.navigate('./');
     } catch (error) {
       console.log("Erreur inattendue:", error);
