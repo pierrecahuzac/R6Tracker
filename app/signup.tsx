@@ -12,10 +12,10 @@ const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 const Signup = () => {
   const [credentials, setCredentials] = useState(
     {
-      email: '',
-      password: '',
-      passwordConfirmation: "",
-      username: ""
+      email: 'test@est.fr',
+      username: "test",
+      password: 'test',
+      passwordConfirmation: "test",
     }
   );
 
@@ -32,18 +32,18 @@ const Signup = () => {
     }
 
     try {
-      const response = await axios.post(`${baseAPIURL}/api/player/signup`, {
+      const response = await axios.post(`${baseAPIURL}/player/signup`, {
         email: credentials.email,
         password: credentials.password,
         username: credentials.username
 
       }, {
         //withCredentials: true,
-         headers: {
+        headers: {
           'Content-Type': 'application/json'
         }
       });
-    
+
 
     } catch (error) {
       console.log("Erreur inattendue:", error);

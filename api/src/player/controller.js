@@ -35,16 +35,20 @@ const PlayerController = {
 
   login: async (req, res) => {
     try {
+
+      
       const { email, password } = req.body;
       const player = await prisma.player.findUnique({
         where: {
           email,
         },
       });
-      if (player) {
-     
+
+      
+      if (player) {     
         const isPasswordValid = await bcrypt.compare(password, player.password);
-  
+
+        
 
         if (isPasswordValid) {
           delete player.password;

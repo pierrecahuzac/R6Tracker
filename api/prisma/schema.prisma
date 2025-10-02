@@ -1,11 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 generator client {
   provider = "prisma-client-js"
-  // output   = "../generated/prisma"
 }
 
 datasource db {
@@ -13,49 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/**
- * =========================
- * Référentiels
- * =========================
- */
-
 model Platform {
   id       String          @id @default(uuid())
-  code     String          @unique // "PS5", "PC", "XBOX"
-  label    String
+  name     String          @unique
   games    Game[]
   accounts PlayerAccount[]
 }
 
 model Side {
   id         String     @id @default(uuid())
-  code       String     @unique // "ATTACK", "DEFENSE"
+  name       String     @unique
   label      String
   operators  Operator[]
   roundsSide Round[]    @relation("RoundSide")
   roundsWin  Round[]    @relation("RoundWinningSide")
-  games      Game[] // Ajouté pour la relation inverse
+  games      Game[]
 }
 
 model GameMode {
   id    String @id @default(uuid())
-  code  String @unique // "RANKED", "UNRANKED", "CUSTOM"
-  label String
+  name  String @unique
   games Game[]
 }
 
 model Result {
   id    String @id @default(uuid())
-  code  String @unique // "WIN", "LOSS"
+  name  String @unique
   label String
   games Game[]
 }
-
-/**
- * =========================
- * Principaux
- * =========================
- */
 
 model Player {
   id        String          @id @default(uuid())
@@ -63,7 +43,6 @@ model Player {
   email     String          @unique
   username  String
   password  String
-  // passwordHash si géré côté API d’auth
   accounts  PlayerAccount[]
   games     Game[]
 }
@@ -76,7 +55,7 @@ model PlayerAccount {
   platformId String
   gamertag   String
   externalId String?
-  games      Game[] // Ajouté pour la relation inverse
+  games      Game[]
 
   @@unique([playerId, platformId])
   @@index([platformId, gamertag])
@@ -93,6 +72,7 @@ model Operator {
   name   String  @unique
   side   Side    @relation(fields: [sideId], references: [id])
   sideId String
+  image  String
   rounds Round[]
 }
 
@@ -120,7 +100,6 @@ model Game {
   startingSide   Side?   @relation(fields: [startingSideId], references: [id])
   startingSideId String?
 
-  // Dénormalisation utile, dérivable des rounds
   playerScore   Int     @default(0)
   opponentScore Int     @default(0)
   result        Result? @relation(fields: [resultId], references: [id])
@@ -151,11 +130,9 @@ model Round {
 
   roundNumber Int
 
-  // Côté joué par le joueur suivi
   side   Side   @relation("RoundSide", fields: [sideId], references: [id])
   sideId String
 
-  // Côté vainqueur du round (jamais de nul)
   winningSide   Side   @relation("RoundWinningSide", fields: [winningSideId], references: [id])
   winningSideId String
 

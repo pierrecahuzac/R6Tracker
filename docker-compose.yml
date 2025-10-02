@@ -1,6 +1,6 @@
 services:
-  r6tracker-api:
-    container_name: r6tracker-api
+  api:
+    container_name: api
     build:
       context: ./api
       dockerfile: Dockerfile
@@ -12,25 +12,29 @@ services:
     env_file:
       - .env    
     networks:
-      - r6tracker
-  r6tracker-database:
-    container_name: r6tracker-database
+      - R6Tracker
+    depends_on:
+      - database
+
+  database:
+    container_name: database
     image: postgres
     restart: always
     ports:
       - 5433:5432
     networks:
-      - r6tracker
+      - R6Tracker
     env_file:
       - .env 
-  r6tracker-adminer:
-    container_name: r6tracker-adminer
+    
+  adminer:
+    container_name: adminer
     image: adminer
     restart: always
     ports:
       - 5558:8080
     networks:
-      - r6tracker
+      - R6Tracker
 networks:
-  r6tracker:
+  R6Tracker:
     driver: bridge

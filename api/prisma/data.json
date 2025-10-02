@@ -1,0 +1,189 @@
+{
+  "platform": [
+    {
+      "name": "PC"
+    },
+    {
+      "name": "PS4"
+    },
+    {
+      "name": "PS5"
+    },
+    {
+      "name": "Xbox One"
+    },
+    {
+      "name": "PC"
+    }
+  ],
+  "gameMode": [
+    {
+      "name": "normale"
+    },
+    {
+      "name": "classée"
+    }
+  ],
+  "operator": [
+    { "name": "Sledge", "team": "attaque", "image": "/images/operators/sledge.png" },
+    { "name": "Thatcher", "team": "attaque", "image": "/images/operators/thatcher.png" },
+    { "name": "Ash", "team": "attaque", "image": "/images/operators/ash.png" },
+    { "name": "Thermite", "team": "attaque", "image": "/images/operators/thermite.png" },
+    { "name": "Twitch", "team": "attaque", "image": "/images/operators/twitch.png" },
+    { "name": "Montagne", "team": "attaque", "image": "/images/operators/montagne.png" },
+    { "name": "Glaz", "team": "attaque", "image": "/images/operators/glaz.png" },
+    { "name": "Fuze", "team": "attaque", "image": "/images/operators/fuze.png" },
+    { "name": "Blitz", "team": "attaque", "image": "/images/operators/blitz.png" },
+    { "name": "IQ", "team": "attaque", "image": "/images/operators/iq.png" },
+    { "name": "Buck", "team": "attaque", "image": "/images/operators/buck.png" },
+    { "name": "Blackbeard", "team": "attaque", "image": "/images/operators/blackbeard.png" },
+    { "name": "Capitao", "team": "attaque", "image": "/images/operators/capitao.png" },
+    { "name": "Hibana", "team": "attaque", "image": "/images/operators/hibana.png" },
+    { "name": "Jackal", "team": "attaque", "image": "/images/operators/jackal.png" },
+    { "name": "Ying", "team": "attaque", "image": "/images/operators/ying.png" },
+    { "name": "Zofia", "team": "attaque", "image": "/images/operators/zofia.png" },
+    { "name": "Dokkaebi", "team": "attaque", "image": "/images/operators/dokkaebi.png" },
+    { "name": "Lion", "team": "attaque", "image": "/images/operators/lion.png" },
+    { "name": "Finka", "team": "attaque", "image": "/images/operators/finka.png" },
+    { "name": "Maverick", "team": "attaque", "image": "/images/operators/maverick.png" },
+    { "name": "Nomad", "team": "attaque", "image": "/images/operators/nomad.png" },
+    { "name": "Gridlock", "team": "attaque", "image": "/images/operators/gridlock.png" },
+    { "name": "Nøkk", "team": "attaque", "image": "/images/operators/nokk.png" },
+    { "name": "Amaru", "team": "attaque", "image": "/images/operators/amaru.png" },
+    { "name": "Kali", "team": "attaque", "image": "/images/operators/kali.png" },
+    { "name": "Iana", "team": "attaque", "image": "/images/operators/iana.png" },
+    { "name": "Ace", "team": "attaque", "image": "/images/operators/ace.png" },
+    { "name": "Zero", "team": "attaque", "image": "/images/operators/zero.png" },
+    { "name": "Flores", "team": "attaque", "image": "/images/operators/flores.png" },
+    { "name": "Osa", "team": "attaque", "image": "/images/operators/osa.png" },
+    { "name": "Sens", "team": "attaque", "image": "/images/operators/sens.png" },
+    { "name": "Grim", "team": "attaque", "image": "/images/operators/grim.png" },
+    { "name": "Brava", "team": "attaque", "image": "/images/operators/brava.png" },
+    { "name": "Ram", "team": "attaque", "image": "/images/operators/ram.png" },
+    { "name": "Deimos", "team": "attaque", "image": "/images/operators/deimos.png" },
+    { "name": "Smoke", "team": "défense", "image": "/images/operators/smoke.png" },
+    { "name": "Mute", "team": "défense", "image": "/images/operators/mute.png" },
+    { "name": "Castle", "team": "défense", "image": "/images/operators/castle.png" },
+    { "name": "Pulse", "team": "défense", "image": "/images/operators/pulse.png" },
+    { "name": "Doc", "team": "défense", "image": "/images/operators/doc.png" },
+    { "name": "Rook", "team": "défense", "image": "/images/operators/rook.png" },
+    { "name": "Jäger", "team": "défense", "image": "/images/operators/jager.png" },
+    { "name": "Bandit", "team": "défense", "image": "/images/operators/bandit.png" },
+    { "name": "Kapkan", "team": "défense", "image": "/images/operators/kapkan.png" },
+    { "name": "Tachanka", "team": "défense", "image": "/images/operators/tachanka.png" },
+    { "name": "Frost", "team": "défense", "image": "/images/operators/frost.png" },
+    { "name": "Valkyrie", "team": "défense", "image": "/images/operators/valkyrie.png" },
+    { "name": "Caveira", "team": "défense", "image": "/images/operators/caveira.png" },
+    { "name": "Echo", "team": "défense", "image": "/images/operators/echo.png" },
+    { "name": "Mira", "team": "défense", "image": "/images/operators/mira.png" },
+    { "name": "Lesion", "team": "défense", "image": "/images/operators/lesion.png" },
+    { "name": "Ela", "team": "défense", "image": "/images/operators/ela.png" },
+    { "name": "Vigil", "team": "défense", "image": "/images/operators/vigil.png" },
+    { "name": "Maestro", "team": "défense", "image": "/images/operators/maestro.png" },
+    { "name": "Alibi", "team": "défense", "image": "/images/operators/alibi.png" },
+    { "name": "Clash", "team": "défense", "image": "/images/operators/clash.png" },
+    { "name": "Kaid", "team": "défense", "image": "/images/operators/kaid.png" },
+    { "name": "Mozzie", "team": "défense", "image": "/images/operators/mozzie.png" },
+    { "name": "Warden", "team": "défense", "image": "/images/operators/warden.png" },
+    { "name": "Goyo", "team": "défense", "image": "/images/operators/goyo.png" },
+    { "name": "Wamai", "team": "défense", "image": "/images/operators/wamai.png" },
+    { "name": "Oryx", "team": "défense", "image": "/images/operators/oryx.png" },
+    { "name": "Melusi", "team": "défense", "image": "/images/operators/melusi.png" },
+    { "name": "Aruni", "team": "défense", "image": "/images/operators/aruni.png" },
+    { "name": "Thunderbird", "team": "défense", "image": "/images/operators/thunderbird.png" },
+    { "name": "Thorn", "team": "défense", "image": "/images/operators/thorn.png" },
+    { "name": "Azami", "team": "défense", "image": "/images/operators/azami.png" },
+    { "name": "Solis", "team": "défense", "image": "/images/operators/solis.png" },
+    { "name": "Fenrir", "team": "défense", "image": "/images/operators/fenrir.png" },
+    { "name": "Tubarão", "team": "défense", "image": "/images/operators/tubarao.png" },
+    { "name": "Denari", "team": "défense", "image": "/images/operators/denari.png" }
+  ],
+  "side": [
+    {
+      "name": "attaque"
+    },
+    {
+      "name": "défense"
+    }
+  ],
+  "map": [
+    {
+      "name": "Bank"
+    },
+    {
+      "name": "Border"
+    },
+    {
+      "name": "Chalet"
+    },
+    {
+      "name": "Clubhouse"
+    },
+    {
+      "name": "Consulate"
+    },
+    {
+      "name": "Kafe Dostoyevsky"
+    },
+    {
+      "name": "Kanal"
+    },
+    {
+      "name": "Nighthaven Labs"
+    },
+    {
+      "name": "Oregon"
+    },
+    {
+      "name": "Outback"
+    },
+    {
+      "name": "Skyscraper"
+    },
+    {
+      "name": "Theme Park"
+    },
+    {
+      "name": "Villa"
+    },
+    {
+      "name": "Emerald Plains"
+    },
+    {
+      "name": "Lair"
+    },
+    {
+      "name": "Coastline"
+    },
+    {
+      "name": "Stadium 2020"
+    },
+    {
+      "name": "Stadium Bravo"
+    },
+    {
+      "name": "Favela"
+    },
+    {
+      "name": "Hereford Base"
+    },
+    {
+      "name": "House"
+    },
+    {
+      "name": "Fortress"
+    },
+    {
+      "name": "Tower"
+    },
+    {
+      "name": "Yacht"
+    },
+    {
+      "name": "Presidential Plane"
+    },
+    {
+      "name": "Bartlett University"
+    }
+  ]
+}
