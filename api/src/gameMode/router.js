@@ -3,8 +3,7 @@ const router = express.Router();
 const GameController = require("./controller");
 
 
-
-router.post(
+router.get(
   "/getAll",
   GameController.getAll
 );

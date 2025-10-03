@@ -72,7 +72,8 @@ model Operator {
   name   String  @unique
   side   Side    @relation(fields: [sideId], references: [id])
   sideId String
-  image  String
+  image  String?
+  icon   String
   rounds Round[]
 }
 

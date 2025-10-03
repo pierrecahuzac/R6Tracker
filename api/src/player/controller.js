@@ -16,7 +16,6 @@ const PlayerController = {
       },
     });
 
-
     if (playerExists) {
       return res.status(400).json({
         message: "Utilisateur déjà existant",
@@ -35,8 +34,6 @@ const PlayerController = {
 
   login: async (req, res) => {
     try {
-
-      
       const { email, password } = req.body;
       const player = await prisma.player.findUnique({
         where: {
@@ -44,11 +41,8 @@ const PlayerController = {
         },
       });
 
-      
-      if (player) {     
+      if (player) {
         const isPasswordValid = await bcrypt.compare(password, player.password);
-
-        
 
         if (isPasswordValid) {
           delete player.password;
@@ -70,7 +64,12 @@ const PlayerController = {
           id: playerId,
         },
       });
+      if(!player) {
+        return res.status(404).json({ message: "Joueur non trouvé" });
+      } 
+  
       delete player.password;
+
       return res.status(200).json(player);
     } catch (error) {
       throw error;

@@ -13,18 +13,20 @@ const NewGame = () => {
 
 
     useEffect(() => {
-        fetchTypeOfGame()
+        fetchGameModes()
     }, [])
 
 
 
-    const fetchTypeOfGame = async () => {
+    const fetchGameModes = async () => {
         const response = await axios.get(`${baseAPIURL}/gameMode/getAll`)
         console.log(response);
         setGameMode(response.data);
     }
 
     const onChooseGameMode = (gameMode: string) => {     
+        console.log(gameMode);
+        
         setGameModeChoosen(gameMode)
            router.navigate("./maps")
 

@@ -1,37 +1,21 @@
-import { Link, router, useNavigation } from "expo-router";
+import { Link, router } from "expo-router";
 import { useState } from "react";
 import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useGameContext } from "./contexts/gameContext";
 import axios from "axios";
-
-
 
 const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 
-console.log(baseAPIURL);
-
-
-
-type Player = {
-  id: string;
-  username: string;
-  email: string;
-}
-
 const Signin = () => {
-
-
+  const { player, setPlayer } = useGameContext();
   const [login, setLogin] = useState(
     {
       email: 'test@est.fr',
       password: 'test'
     }
   );
-  const [player, setPlayer] = useState<Player>({
-    id: '',
-    username: '',
-    email: ''
-  });
+  
 
   const handleLogin = async () => {
 
@@ -40,21 +24,27 @@ const Signin = () => {
       return;
     }
     try {
+      
       const response = await axios.post(`${baseAPIURL}/player/login`,
         {
           email: login.email,
           password: login.password,
         }
-        
+
       )
-   
-      
-      const {player} = response.data
-      setPlayer(player);
-      localStorage.setItem('playerId', player.id);
-      localStorage.setItem('username', player.username);
-      localStorage.setItem('email', player.email);
-      localStorage.setItem('isLoggedIn', "true");
+      const fullPlayerObject = {
+        id: response.data.player.id,
+        username: response.data.player.username,
+        email: response.data.email,
+        isLoggedIn: true,
+      };
+
+      setPlayer(fullPlayerObject);
+
+      await AsyncStorage.setItem('playerId', fullPlayerObject.id);
+      await AsyncStorage.setItem('username', fullPlayerObject.username);
+      await AsyncStorage.setItem('email', fullPlayerObject.email);
+      await AsyncStorage.setItem('isLoggedIn', "true");
 
       router.navigate('./');
     } catch (error) {
@@ -116,7 +106,7 @@ const Signin = () => {
       <View style={{ width: 240, marginBottom: 16 }}>
         <Button title="Se connecter" onPress={handleLogin} />
       </View>
-      
+
     </View>
   );
 }

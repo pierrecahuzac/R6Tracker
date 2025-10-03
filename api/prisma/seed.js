@@ -36,6 +36,7 @@ const seedDB = async () => {
     .map((op) => ({
       name: op.name,
       image: op.image,
+      icon: op.icon,
       sideId: sideLabelToId[(op.team || "").toLowerCase()],
     }))
     .filter((op) => Boolean(op.sideId));

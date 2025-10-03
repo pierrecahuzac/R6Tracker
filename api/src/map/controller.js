@@ -9,9 +9,7 @@ const MapController = {
         id: true,
         name: true,
       },
-    });
-    console.log(maps);
-    
+    });    
     return res.status(200).json(maps);
 
    
