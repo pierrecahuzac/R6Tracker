@@ -41,3 +41,10 @@ app-example
 # generated native folders
 /ios
 /android
+android
+/api/.env
+/app/.env
+.env
+.env*
+.env.production
+commandlinetools-linux-13114758_latest.zipcommandlinetools-linux-13114758_latest.zip
