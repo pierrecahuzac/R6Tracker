@@ -21,7 +21,6 @@ model Side {
   operators  Operator[]
   roundsSide Round[]    @relation("RoundSide")
   roundsWin  Round[]    @relation("RoundWinningSide")
-  games      Game[]
 }
 
 model GameMode {
@@ -98,8 +97,7 @@ model Game {
   account   PlayerAccount? @relation(fields: [accountId], references: [id])
   accountId String?
 
-  startingSide   Side?   @relation(fields: [startingSideId], references: [id])
-  startingSideId String?
+
 
   playerScore   Int?    @default(0)
   opponentScore Int?    @default(0)
@@ -107,11 +105,6 @@ model Game {
   resultId      String?
 
   overtime Boolean? @default(false)
-
-  totalKills   Int? @default(0)
-  totalDeaths  Int? @default(0)
-  totalAssists Int? @default(0)
-  totalPoints  Int? @default(0)
 
   rounds Round[]
 

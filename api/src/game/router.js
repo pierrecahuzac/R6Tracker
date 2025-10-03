@@ -9,6 +9,12 @@ router.post(
    
   GameController.create
 );
+router.put(
+  "/update/:gameId",
+
+   
+  GameController.updateByGameId
+);
 
 
 module.exports = router;

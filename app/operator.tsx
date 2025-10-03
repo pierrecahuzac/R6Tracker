@@ -63,7 +63,7 @@ const Operator = () => {
         try {
             const response = await axios.get(`${baseAPIURL}/operator/getAllOperatorsBySide/${roundSide}`,);
 
-            console.log(response);
+         
 
             if (Array.isArray(response.data)) {
                 setOperatorsList(response.data);
@@ -101,14 +101,13 @@ const Operator = () => {
 
 
     const operatorChoosen = (operator: Operator) => {
-        console.log(operator);
-        console.log('opérateur choisi!');
+     
         setRound({
             ...round,
             operatorId: operator.id,
             operator
         });
-        console.log(round);
+ 
         router.navigate('./round')
 
 

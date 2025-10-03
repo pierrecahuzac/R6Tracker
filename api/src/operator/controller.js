@@ -4,14 +4,13 @@ const prisma = new PrismaClient();
 
 const OperatorController = {
   getAll: async (req, res) => {
-    console.log("ici");
-
-    const operators = await prisma.operator.findMany();
+  
+    ; const operators = await prisma.operator.findMany();
 
     return res.status(200).json(operators);
   },
   getAllOperatorsBySide: async (req, res) => {
-    console.log(req.params.side);
+   
     const sideChoosen = req.params.side;
     
     try {
