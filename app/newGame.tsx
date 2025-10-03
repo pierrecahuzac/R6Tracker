@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react"
-import { Button, View } from "react-native"
+import { Button, View, Text } from "react-native"
 import { useGameContext } from "./contexts/gameContext";
 import { router } from "expo-router";
 const NewGame = () => {
@@ -8,11 +8,14 @@ const NewGame = () => {
     const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 
 
-    const [ gameMode, setGameMode ] = useState([])
-    const { gameModeChoosen, setGameModeChoosen } = useGameContext()
+    const [gameMode, setGameMode] = useState([])
+    const { gameModeChoosen, setGameModeChoosen, game } = useGameContext()
 
 
     useEffect(() => {
+        console.log(game);
+
+        // il faut créer une partie (game) dans la DB pour avoir l'id et pouvoir lier les futurs rounds avec
         fetchGameModes()
     }, [])
 
@@ -24,15 +27,17 @@ const NewGame = () => {
         setGameMode(response.data);
     }
 
-    const onChooseGameMode = (gameMode: string) => {     
+    const onChooseGameMode = (gameMode: string) => {
         console.log(gameMode);
-        
+
         setGameModeChoosen(gameMode)
-           router.navigate("./maps")
+        router.navigate("./maps")
 
     }
     return (
-        <View>Nouvelle partie
+        <View>
+            <Text>Nouvelle partie</Text>
+
             {gameMode && gameMode.map((mode: { name: string }) => (
                 <Button title={mode.name} key={mode.name} onPress={(e) => onChooseGameMode(mode.name)} />
             ))}

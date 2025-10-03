@@ -83,17 +83,17 @@ model Game {
   updatedAt DateTime  @updatedAt
   date      DateTime?
 
-  player   Player @relation(fields: [playerId], references: [id])
-  playerId String
+  player   Player? @relation(fields: [playerId], references: [id])
+  playerId String?
 
-  map   Map    @relation(fields: [mapId], references: [id])
-  mapId String
+  map   Map?    @relation(fields: [mapId], references: [id])
+  mapId String?
 
-  mode   GameMode @relation(fields: [modeId], references: [id])
-  modeId String
+  mode   GameMode? @relation(fields: [modeId], references: [id])
+  modeId String?
 
-  platform   Platform @relation(fields: [platformId], references: [id])
-  platformId String
+  platform   Platform? @relation(fields: [platformId], references: [id])
+  platformId String?
 
   account   PlayerAccount? @relation(fields: [accountId], references: [id])
   accountId String?
@@ -101,17 +101,17 @@ model Game {
   startingSide   Side?   @relation(fields: [startingSideId], references: [id])
   startingSideId String?
 
-  playerScore   Int     @default(0)
-  opponentScore Int     @default(0)
+  playerScore   Int?    @default(0)
+  opponentScore Int?    @default(0)
   result        Result? @relation(fields: [resultId], references: [id])
   resultId      String?
 
-  overtime Boolean @default(false)
+  overtime Boolean? @default(false)
 
-  totalKills   Int @default(0)
-  totalDeaths  Int @default(0)
-  totalAssists Int @default(0)
-  totalPoints  Int @default(0)
+  totalKills   Int? @default(0)
+  totalDeaths  Int? @default(0)
+  totalAssists Int? @default(0)
+  totalPoints  Int? @default(0)
 
   rounds Round[]
 

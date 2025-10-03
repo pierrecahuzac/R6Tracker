@@ -4,10 +4,7 @@
 
 // import { View } from "react-native";
 
-
 // import { useGameContext } from "./contexts/gameContext";
-
-
 
 // const Index = () => {
 //   const { mapChoosen, setMapChoosen, player, setPlayer } = useGameContext()
@@ -28,7 +25,7 @@
 //     localStorage.removeItem('isLoggedIn');
 //     router.navigate('./');
 //   }
-//   return ( 
+//   return (
 
 //       <View
 //         style={{
@@ -69,39 +66,52 @@
 //   );
 // }
 
-
-
 // export default Index// Index.tsx
 
 import { Link, router } from "expo-router";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGameContext } from "./contexts/gameContext";
 import { Button, View } from "react-native";
-import { useEffect } from "react";
+
 import axios from "axios";
 
-
-
 const Index = () => {
-
-  const { player, setPlayer } = useGameContext();  
+  const { player, setPlayer, game, setGame } = useGameContext();
 
   const logout = async () => {
     setPlayer({
-      id: '',
-      username: '',
-      email: ''
+      id: "",
+      username: "",
+      email: "",
     });
 
     try {
-      await AsyncStorage.multiRemove(['playerId', 'username', 'email', 'isLoggedIn']);
+      await AsyncStorage.multiRemove([
+        "playerId",
+        "username",
+        "email",
+        "isLoggedIn",
+      ]);
     } catch (e) {
       console.error("Erreur AsyncStorage:", e);
     }
-    router.navigate('./');
-  }
+    router.navigate("./");
+  };
+  console.log(player.id);
 
+  const createNewGame = async () => {
+    const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL;
 
+    const response = await axios.post(`${baseAPIURL}/game/create`, {
+      playerId: player.id,
+    });
+    console.log(response);
+
+    if (response.status === 201) {
+      setGame(response.data);
+      router.navigate("./newGame");
+    }
+  };
   return (
     <View
       style={{
@@ -110,38 +120,32 @@ const Index = () => {
         alignItems: "center",
       }}
     >
-      {player && player.isLoggedIn === true ?
-        (
-
-          <View style={{ alignItems: "center" }}>
-            <Link href={`/player/${player.id}`} style={{ marginBottom: 20 }}>
-              Bienvenue, {player.username}
-            </Link>
-
-            <Button title="Nouvelle partie" />
-
-
-            <Link href={{ pathname: `/player/[id]`, params: { id: player.id } }}
-              style={{ marginBottom: 4 }}>Profil
-            </Link>
-            <Link href={`/stats/${player.id}`} style={{ marginBottom: 20 }}>Stats</Link>
-
-            <Button
-              title="Déconnexion"
-              color="#841584"
-              onPress={logout}
-            />
-            {/*  Créer une nouvelle game dans la DB */}
-            <Link href={`/newGame`} style={{ marginTop: 20 }}>Nouvelle partie</Link>
-          </View>
-        ) : (
-
-          <Link href={`/signin`} >
-            Connexion
+      {player && player.isLoggedIn === true ? (
+        <View style={{ alignItems: "center" }}>
+          <Link href={`/player/${player.id}`} style={{ marginBottom: 20 }}>
+            Bienvenue, {player.username}
           </Link>
-        )}
-    </View >
-  );
-}
 
-export default Index
+          <Link
+            href={{ pathname: `/player/[id]`, params: { id: player.id } }}
+            style={{ marginBottom: 4 }}
+          >
+            Profil
+          </Link>
+          <Link href={`/stats/${player.id}`} style={{ marginBottom: 20 }}>
+            Stats
+          </Link>
+
+          <Button title="Déconnexion" color="#841584" onPress={logout} />
+
+          <Button title="Nouvelle partie" onPress={createNewGame} />
+          {/* <Link href={`/newGame`} style={{ marginTop: 20 }}>Nouvelle partie</Link> */}
+        </View>
+      ) : (
+        <Link href={`/signin`}>Connexion</Link>
+      )}
+    </View>
+  );
+};
+
+export default Index;

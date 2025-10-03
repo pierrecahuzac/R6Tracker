@@ -22,7 +22,7 @@ const defaultRound = {
 
 const defaultContextValue = {
   gameModeChoosen: [],
-  setGameModeChoosen: () => {},
+  setGameModeChoosen: (side) => {},
   mapChoosen: undefined,
   setMapChoosen: () => {},
   round: defaultRound,
@@ -31,6 +31,29 @@ const defaultContextValue = {
   setScore: () => {},
   player: defaultPlayer,
   setPlayer: (player) => {},
+  game: {},
+  setGame: (game) => {},
+};
+
+const defaultGame = {
+  accountId: "",
+  createdAt: "",
+  date: "",
+  id: "",
+  mapId: "",
+  modeId: "",
+  opponentScore: 0,
+  overtime: false,
+  platformId: null,
+  playerId: "",
+  playerScore: 0,
+  resultId: null,
+  startingSideId: null,
+  totalAssists: 0,
+  totalDeaths: 0,
+  totalKills: 0,
+  totalPoints: 0,
+  updatedAt: null,
 };
 
 const GameContext = createContext(defaultContextValue);
@@ -43,6 +66,7 @@ export const GameProvider = ({ children }) => {
   const [round, setRound] = useState(defaultContextValue.round);
   const [score, setScore] = useState(defaultContextValue.score);
   const [player, setPlayer] = useState(defaultPlayer);
+  const [game, setGame] = useState(defaultGame);
 
   const value = {
     gameModeChoosen,
@@ -55,6 +79,8 @@ export const GameProvider = ({ children }) => {
     setScore,
     player,
     setPlayer,
+    game,
+    setGame,
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
