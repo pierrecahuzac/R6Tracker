@@ -38,13 +38,13 @@ const Round = () => {
     const { round, setRound } = useGameContext()
     
     // Le console.log initial est conservé pour le débogage
-    console.log(round.points);
+  
 
     // Les valeurs pour les boutons Kills/Assists
     const statValues = [0, 1, 2, 3, 4, 5];
 
     useEffect(() => {
-        console.log(round.roundNumber);
+        ;
         
         setRound((prevRound : {
             roundNumber: number;
@@ -63,8 +63,8 @@ const Round = () => {
     }, []);
 
     const submitRound = () => {
-        console.log("Round soumis :", round);
-        // Ajoutez ici la logique de navigation ou de sauvegarde finale
+        
+    
     }
 
     // Gestion du TextInput pour les points (doit être une chaîne)

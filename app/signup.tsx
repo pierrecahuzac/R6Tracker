@@ -12,7 +12,7 @@ const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 const Signup = () => {
   const [credentials, setCredentials] = useState(
     {
-      email: 'test@est.fr',
+      email: 'test@test.fr',
       username: "test",
       password: 'test',
       passwordConfirmation: "test",

@@ -20,7 +20,7 @@ model Side {
   label      String
   operators  Operator[]
   roundsSide Round[]    @relation("RoundSide")
-  roundsWin  Round[]    @relation("RoundWinningSide")
+
 }
 
 model GameMode {
@@ -44,6 +44,7 @@ model Player {
   password  String
   accounts  PlayerAccount[]
   games     Game[]
+  rounds    Round[]
 }
 
 model PlayerAccount {
@@ -97,8 +98,6 @@ model Game {
   account   PlayerAccount? @relation(fields: [accountId], references: [id])
   accountId String?
 
-
-
   playerScore   Int?    @default(0)
   opponentScore Int?    @default(0)
   result        Result? @relation(fields: [resultId], references: [id])
@@ -119,16 +118,17 @@ model Round {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
 
-  game   Game   @relation(fields: [gameId], references: [id])
-  gameId String
+  game     Game   @relation(fields: [gameId], references: [id])
+  gameId   String
+  player   Player @relation(fields: [playerId], references: [id])
+  playerId String
 
   roundNumber Int
 
   side   Side   @relation("RoundSide", fields: [sideId], references: [id])
   sideId String
 
-  winningSide   Side   @relation("RoundWinningSide", fields: [winningSideId], references: [id])
-  winningSideId String
+
 
   operator   Operator? @relation(fields: [operatorId], references: [id])
   operatorId String?

@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./api:/usr/src/api
-      - /usr/src/api/node_modules # CHEMIN CORRECT DANS LE CONTENEUR
+      - /usr/src/api/node_modules
     ports:
       - 5000:5000
     env_file:
@@ -26,6 +26,8 @@ services:
       - R6Tracker
     env_file:
       - .env 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     
   adminer:
     container_name: adminer
@@ -38,3 +40,5 @@ services:
 networks:
   R6Tracker:
     driver: bridge
+volumes:
+  postgres_data:

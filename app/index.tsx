@@ -4,44 +4,16 @@ import { useGameContext } from "./contexts/gameContext";
 import { Button, View } from "react-native";
 
 import axios from "axios";
+import { logout } from "./functions/player";
+import { createNewGame } from "./functions/newGame";
 
 const Index = () => {
   const { player, setPlayer, game, setGame } = useGameContext();
 
-  const logout = async () => {
-    setPlayer({
-      id: "",
-      username: "",
-      email: "",
-    });
 
-    try {
-      await AsyncStorage.multiRemove([
-        "playerId",
-        "username",
-        "email",
-        "isLoggedIn",
-      ]);
-    } catch (e) {
-      console.error("Erreur AsyncStorage:", e);
-    }
-    router.navigate("./");
-  };
-  console.log(player.id);
 
-  const createNewGame = async () => {
-    const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL;
 
-    const response = await axios.post(`${baseAPIURL}/game/create`, {
-      playerId: player.id,
-    });
-    console.log(response);
 
-    if (response.status === 201) {
-      setGame(response.data);
-      router.navigate("./newGame");
-    }
-  };
   return (
     <View
       style={{
@@ -66,9 +38,9 @@ const Index = () => {
             Stats
           </Link>
 
-          <Button title="Déconnexion" color="#841584" onPress={logout} />
+          <Button title="Déconnexion" color="#841584" onPress={() => logout(setPlayer)} />
 
-          <Button title="Nouvelle partie" onPress={createNewGame} />
+          <Button title="Nouvelle partie" onPress={() => createNewGame(player, setGame)} />
           {/* <Link href={`/newGame`} style={{ marginTop: 20 }}>Nouvelle partie</Link> */}
         </View>
       ) : (

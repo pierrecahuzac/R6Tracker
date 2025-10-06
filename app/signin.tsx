@@ -11,7 +11,7 @@ const Signin = () => {
   const { player, setPlayer } = useGameContext();
   const [login, setLogin] = useState(
     {
-      email: 'test@est.fr',
+      email: 'test@test.fr',
       password: 'test'
     }
   );

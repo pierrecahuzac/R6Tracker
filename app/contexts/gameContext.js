@@ -1,16 +1,32 @@
 import { createContext, useContext, useState } from "react";
+/**
+ * @typedef {Object} GameContextValue
+ * @property {typeof initialPlayer} player
+ * @property {(value: any) => void} setPlayer
+ * @property {typeof initialGame} game
+ * @property {(value: any) => void} setGame
+ * @property {(value: string) => void} setGameMode
+ * @property {string} mapChosen
+ * @property {(value: string) => void} setMapChosen
+ * @property {typeof initialRound} round
+ * @property {(value: any) => void} setRound
+ * @property {typeof initialScore} score
+ * @property {(value: any) => void} setScore
+ */
 
-const defaultPlayer = {
+const initialPlayer = {
   id: "",
   username: "",
   email: "",
   isLoggedIn: false,
 };
-const defaultRound = {
+
+const initialRound = {
   id: "",
   gameId: "",
-  roundNumber: 0,
+  roundNumber: 1,
   sideId: "",
+  sideName: "",
   winningSideId: "",
   operatorId: "",
   kills: 0,
@@ -20,59 +36,74 @@ const defaultRound = {
   points: 0,
 };
 
-const defaultContextValue = {
-  gameModeChoosen: [],
-  setGameModeChoosen: (side) => {},
-  mapChoosen: undefined,
-  setMapChoosen: () => {},
-  round: defaultRound,
-  setRound: (side) => {},
-  score: [],
-  setScore: () => {},
-  player: defaultPlayer,
-  setPlayer: (player) => {},
-  game: {},
-  setGame: (game) => {},
-};
-
-const defaultGame = {
-  accountId: "",
+const initialGame = {
+  id: "",
   createdAt: "",
   date: "",
-  id: "",
-  mapId: "",
-  modeId: "",
-  opponentScore: 0,
-  overtime: false,
+  map: null,
   platformId: null,
   playerId: "",
+  accountId: "",
   playerScore: 0,
+  opponentScore: 0,
   resultId: null,
-  startingSideId: null,
-  totalAssists: 0,
-  totalDeaths: 0,
-  totalKills: 0,
-  totalPoints: 0,
+  overtime: false,
   updatedAt: null,
+  gameMode: null,
+  
 };
 
-const GameContext = createContext(defaultContextValue);
+const initialScore = {
+  playerScore: 0,
+  opponentScore: 0,
+};
+
+/** @type {GameContextValue} */
+const initialContextValue = {
+
+  player: initialPlayer,
+
+  setPlayer: (_value) => {},
+  
+
+  game: initialGame,
+
+  setGame: (_value) => {},
+  
+
+  
+  mapChosen: "",
+
+  setMapChosen: (_value) => {},
+  
+  round: initialRound,
+
+  setRound: (_value) => {},
+  
+  // Score
+  score: initialScore,
+  // setScore: () => {},
+  setScore: (_value) => {},
+};
+
+/** @type {import('react').Context<GameContextValue>} */
+const GameContext = createContext(initialContextValue);
 
 export const GameProvider = ({ children }) => {
-  const [gameModeChoosen, setGameModeChoosen] = useState(
-    defaultContextValue.gameModeChoosen
-  );
-  const [mapChoosen, setMapChoosen] = useState(defaultContextValue.mapChoosen);
-  const [round, setRound] = useState(defaultContextValue.round);
-  const [score, setScore] = useState(defaultContextValue.score);
-  const [player, setPlayer] = useState(defaultPlayer);
-  const [game, setGame] = useState(defaultGame);
+  const [player, setPlayer] = useState(initialPlayer);
+  const [game, setGame] = useState(initialGame);
+  const [mapChosen, setMapChosen] = useState("");
+  const [round, setRound] = useState(initialRound);
+  const [score, setScore] = useState(initialScore);
+
+  const setGameMode = (modeName) => {
+    setGame((prev) => ({ ...prev, gameMode: modeName }));
+  };
 
   const value = {
-    gameModeChoosen,
-    setGameModeChoosen,
-    mapChoosen,
-    setMapChoosen,
+    setGameMode,
+    mapChosen,
+    setMapChosen,
     round,
     setRound,
     score,

@@ -4,14 +4,11 @@ const GameController = require("./controller");
 
 
 router.post(
-  "/create",
-
-   
+  "/create",   
   GameController.create
 );
 router.put(
   "/update/:gameId",
-
    
   GameController.updateByGameId
 );
