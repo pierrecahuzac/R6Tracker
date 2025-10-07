@@ -36,42 +36,38 @@ const StatButton = ({ title, value, stat, setRound, round }: StatButtonProps) =>
 
 
 const Round = () => {
-    const { round, setRound } = useGameContext()
+    const { round, setRound, game } = useGameContext()
     const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 
     const statValues = [0, 1, 2, 3, 4, 5];
     const statValuesResult = ["Victory", "Defeat", "Draw"];
 
-    // useEffect(() => {             
-    //     setRound((prevRound: {
-    //         roundNumber: number;
-    //         kills: number;
-    //         assists: number;
-    //         points: number;
-    //         death: boolean;
-    //         disconnected: boolean;
-    //         roundResult: string;
-    //     }) => {
-    //         return {
-    //             ...prevRound,
-    //             roundNumber: prevRound.roundNumber
-    //         };
-    //     });
-        
-
-    // }, []);
-    const validRound = async () => { try {
-        console.log('roundId', round.id);
-        
-        const url =`${baseAPIURL}/round/update/${round.id}`
-   
-        
+    const validRound = async () => {
+        try {
             const response = await axios.put(`${baseAPIURL}/round/update/${round.id}`, {
                 round
             })
             console.log(response);
-            if(response.status === 200){
-                router.navigate('/round')
+            if (response.status === 200) {
+                setRound({
+                    id: '',
+                    roundNumber: round.roundNumber + 1,
+
+                    gameId: game.id,
+
+                    sideId: "",
+                    sideName: "",
+                    winningSideId: "",
+                    operatorId: "",
+                    kills: 0,
+                    death: false,
+                    assists: 0,
+                    disconnected: false,
+                    points: 0,
+
+                }),
+
+                    router.navigate('/sideChoice')
             }
 
 
@@ -81,17 +77,17 @@ const Round = () => {
         }
     }
 
-    // Gestion du TextInput pour les points (doit être une chaîne)
+
     const handlePointChange = (text: string) => {
-        // Filtrer pour n'accepter que les chiffres
+
         const numericValue = text.replace(/[^0-9]/g, '');
 
-        // Convertir en nombre entier, 0 si vide ou NaN
+
         const value = parseInt(numericValue);
 
         setRound({
             ...round,
-            // S'assurer que 'points' est un nombre (0 si le champ est vide)
+
             points: isNaN(value) ? 0 : value
         })
     }
@@ -112,7 +108,7 @@ const Round = () => {
                         <StatButton
                             key={roundResult}
                             title={roundResult}
-                            value={roundResult} // La valeur est la chaîne de caractères ("Victory", "Defeat", "Draw")
+                            value={roundResult}
                             stat="result"
                             setRound={setRound}
                             round={round}

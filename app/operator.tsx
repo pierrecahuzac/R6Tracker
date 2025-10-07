@@ -15,17 +15,14 @@ const Operator = () => {
     const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
     const { round, setRound } = useGameContext()
 
-
-
-
     // @ts-ignore
     const roundSide = round.side
 
 
     const user = {
         preferences: {
-            image: true,
-            icon: false
+            image: false,
+            icon: true
         }
     }  
 

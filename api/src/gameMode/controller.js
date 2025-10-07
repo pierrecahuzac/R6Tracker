@@ -13,8 +13,8 @@ const GameModeController = {
       },
     }
   );
-
     
+  
     return res.status(200).json(gameModes);
 
    

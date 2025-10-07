@@ -1,5 +1,5 @@
 import { router } from "expo-router"
-import { Button, View } from "react-native"
+import { Button, View , Text} from "react-native"
 import { useGameContext } from "./contexts/gameContext"
 import axios from "axios"
 
@@ -39,6 +39,7 @@ const SideChoice = () => {
 
     return (
         <View>
+            <Text>Round: {round.roundNumber}</Text>
             <Button title='Attaque' onPress={() => chooseSide('ATTACK')} />
             <Button title='Défense' onPress={() => chooseSide('DEFENSE')} />
         </View>
