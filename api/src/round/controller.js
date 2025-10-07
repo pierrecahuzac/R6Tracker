@@ -39,17 +39,13 @@ const RoundController = {
         },
       },
     });
-    
-
 
     return res.status(201).json(round);
   },
- 
+
   updateByGameId: async (req, res) => {
     const gameId = req.params.gameId;
-
-
-    const { modeName, mapName } = req.body.data; // 🚨 
+    const { modeName, mapName } = req.body.data; // 🚨
 
     // 1. Initialiser l'objet de mise à jour des données
     const updateData = {};
@@ -120,9 +116,36 @@ const RoundController = {
       data: updateData,
     });
 
-
-
     return res.status(200).json(gameToFindAndUpdate);
+  },
+  updateRoundById: async (req, res) => {
+    const roundId= req.params.roundId
+    const round= req.body.round
+    console.log(round,);
+    
+    try {
+      const updatedRound = await prisma.round.update({
+        where: {
+          id: roundId
+        }
+        ,
+        data:{
+          kills :round.kills,
+          assists: round.assists,
+          roundNumber: round.roundNumber,
+          death: round.death,
+          disconnected: round.disconnected,
+          points: round.points
+        }
+      })
+      console.log(updatedRound);
+      
+      return res.status(200).json({
+        updatedRound
+      })
+    } catch (error) {
+      console.log(error);
+    }
   },
 };
 

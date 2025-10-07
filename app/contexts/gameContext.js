@@ -19,12 +19,13 @@ const initialPlayer = {
   username: "",
   email: "",
   isLoggedIn: false,
+  language: 'Fr'
 };
 
 const initialRound = {
   id: "",
   gameId: "",
-  roundNumber: 1,
+  roundNumber: 0,
   sideId: "",
   sideName: "",
   winningSideId: "",
@@ -34,13 +35,17 @@ const initialRound = {
   assists: 0,
   disconnected: false,
   points: 0,
+  roundResult: "",
 };
 
 const initialGame = {
   id: "",
   createdAt: "",
   date: "",
-  map: null,
+  map: {
+    id: "",
+    name: "",
+  },
   platformId: null,
   playerId: "",
   accountId: "",
@@ -50,7 +55,6 @@ const initialGame = {
   overtime: false,
   updatedAt: null,
   gameMode: null,
-  
 };
 
 const initialScore = {
@@ -60,26 +64,22 @@ const initialScore = {
 
 /** @type {GameContextValue} */
 const initialContextValue = {
-
   player: initialPlayer,
 
   setPlayer: (_value) => {},
-  
 
   game: initialGame,
 
   setGame: (_value) => {},
-  
 
-  
   mapChosen: "",
 
   setMapChosen: (_value) => {},
-  
+
   round: initialRound,
 
   setRound: (_value) => {},
-  
+
   // Score
   score: initialScore,
   // setScore: () => {},
@@ -92,7 +92,6 @@ const GameContext = createContext(initialContextValue);
 export const GameProvider = ({ children }) => {
   const [player, setPlayer] = useState(initialPlayer);
   const [game, setGame] = useState(initialGame);
-  const [mapChosen, setMapChosen] = useState("");
   const [round, setRound] = useState(initialRound);
   const [score, setScore] = useState(initialScore);
 
@@ -102,8 +101,6 @@ export const GameProvider = ({ children }) => {
 
   const value = {
     setGameMode,
-    mapChosen,
-    setMapChosen,
     round,
     setRound,
     score,

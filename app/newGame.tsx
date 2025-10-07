@@ -11,9 +11,9 @@ const NewGame = () => {
     document.title = "Nouvelle partie";
     const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 
-  
-    const { setGameMode, game } = useGameContext()
-    console.log('game', game);
+
+    const { setGameMode, game, setGame } = useGameContext()
+   
 
     const fetchGameModes = async (): Promise<{ id: string; name: string }[]> => {
         const response = await axios.get(`${baseAPIURL}/gameMode/getAll`);
@@ -25,27 +25,37 @@ const NewGame = () => {
         queryKey: ['gameModes'],
         queryFn: fetchGameModes
     })
- 
+
 
     const updateGame = async (modeName: string) => {
-        console.log(modeName, game.id);
+   
         try {
             const updatedGame = await axios.put(`${baseAPIURL}/game/update/${game.id}`, {
                 data: {
                     gameMode: modeName,
                 }
             });
-            console.log(updatedGame);
+      
             router.navigate("./maps")
 
         } catch (error) {
             console.log(error);
             return
         }
+
     }
     const onChooseGameMode = async (gameMode: { id: string, name: string }): Promise<void> => {
-        console.log(gameMode);
-        setGameMode(gameMode.name);
+   
+       
+        setGame({
+            ...game, 
+
+            gameMode: {
+                id: gameMode.id,
+                name: gameMode.name
+            }
+
+        });
         await updateGame(gameMode.name)
 
     }

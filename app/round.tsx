@@ -1,6 +1,8 @@
 import { Button, TextInput, View, StyleSheet, Text, Pressable } from "react-native"
 import { useGameContext } from "./contexts/gameContext";
 import { useEffect } from "react";
+import axios from "axios";
+import { router } from "expo-router";
 
 // --- Types pour la réutilisation des boutons ---
 type StatKey = 'kills' | 'assists' | 'death' | 'disconnected';
@@ -18,60 +20,72 @@ interface StatButtonProps {
  */
 const StatButton = ({ title, value, stat, setRound, round }: StatButtonProps) => (
     <View style={styles.button_container}>
-        <Button 
-            title={title} 
+        <Button
+            title={title}
             // La couleur peut indiquer l'état sélectionné, par exemple
-            color={round[stat] === value ? '#3498db' : '#2c3e50'} 
+            color={round[stat] === value ? '#3498db' : '#2c3e50'}
             onPress={() => {
                 setRound({
                     ...round,
                     [stat]: value // Utilisation d'une clé dynamique pour mettre à jour la stat
                 });
-            }} 
+            }}
         />
     </View>
 );
-// --------------------------------------------------
 
 
 const Round = () => {
     const { round, setRound } = useGameContext()
-    
-    // Le console.log initial est conservé pour le débogage
-  
+    const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 
-    // Les valeurs pour les boutons Kills/Assists
     const statValues = [0, 1, 2, 3, 4, 5];
+    const statValuesResult = ["Victory", "Defeat", "Draw"];
 
-    useEffect(() => {
-        ;
+    // useEffect(() => {             
+    //     setRound((prevRound: {
+    //         roundNumber: number;
+    //         kills: number;
+    //         assists: number;
+    //         points: number;
+    //         death: boolean;
+    //         disconnected: boolean;
+    //         roundResult: string;
+    //     }) => {
+    //         return {
+    //             ...prevRound,
+    //             roundNumber: prevRound.roundNumber
+    //         };
+    //     });
         
-        setRound((prevRound : {
-            roundNumber: number;
-            kills: number;
-            assists: number;
-            points: number;
-            death: boolean;
-            disconnected: boolean;  
-        }) => {
-            
-            return {
-                ...prevRound,
-                roundNumber: prevRound.roundNumber + 1
-            };
-        });
-    }, []);
 
-    const submitRound = () => {
+    // }, []);
+    const validRound = async () => { try {
+        console.log('roundId', round.id);
         
-    
+        const url =`${baseAPIURL}/round/update/${round.id}`
+   
+        
+            const response = await axios.put(`${baseAPIURL}/round/update/${round.id}`, {
+                round
+            })
+            console.log(response);
+            if(response.status === 200){
+                router.navigate('/round')
+            }
+
+
+        } catch (error) {
+            console.log(error);
+
+        }
     }
 
     // Gestion du TextInput pour les points (doit être une chaîne)
     const handlePointChange = (text: string) => {
         // Filtrer pour n'accepter que les chiffres
-        const numericValue = text.replace(/[^0-9]/g, ''); 
-        
+        const numericValue = text.replace(/[^0-9]/g, '');
+
         // Convertir en nombre entier, 0 si vide ou NaN
         const value = parseInt(numericValue);
 
@@ -90,12 +104,28 @@ const Round = () => {
                 <Text style={styles.score_text}>Score 0 - 0</Text>
             </View>
 
+            {/* Section VICTOIRE */}
+            <View style={styles.stat_group}>
+                <Text style={styles.stat_label}>Résultat du Round</Text>
+                <View style={styles.buttons_row}>
+                    {statValuesResult.map(roundResult => (
+                        <StatButton
+                            key={roundResult}
+                            title={roundResult}
+                            value={roundResult} // La valeur est la chaîne de caractères ("Victory", "Defeat", "Draw")
+                            stat="result"
+                            setRound={setRound}
+                            round={round}
+                        />
+                    ))}
+                </View>
+            </View>
             {/* Section KILLS */}
             <View style={styles.stat_group}>
                 <Text style={styles.stat_label}>Kills</Text>
                 <View style={styles.buttons_row}>
                     {statValues.map(value => (
-                        <StatButton 
+                        <StatButton
                             key={`kill-${value}`}
                             title={String(value)}
                             value={value}
@@ -112,7 +142,7 @@ const Round = () => {
                 <Text style={styles.stat_label}>Assists</Text>
                 <View style={styles.buttons_row}>
                     {statValues.map(value => (
-                        <StatButton 
+                        <StatButton
                             key={`assist-${value}`}
                             title={String(value)}
                             value={value}
@@ -150,11 +180,11 @@ const Round = () => {
                     // 🚨 Correction : S'assurer que la 'value' du TextInput est une chaîne
                     value={round.points !== undefined ? String(round.points) : ''}
                     keyboardType="numeric"
-                    onChangeText={handlePointChange} 
+                    onChangeText={handlePointChange}
                 />
                 <Text style={styles.points_text}>points</Text>
             </View>
-            
+
             {/* Affichage du récapitulatif conditionnel */}
             {
                 round.roundNumber > 1 &&
@@ -167,9 +197,9 @@ const Round = () => {
                     <Text>Déconnexion : {round.disconnected ? 'Oui' : 'Non'}</Text>
                 </View>
             }
-            
+
             <View style={styles.submit_button_container}>
-                <Button title="Valider le round" onPress={() => submitRound()} />
+                <Button title="Valider le round" onPress={() => validRound()} />
             </View>
         </View>
     )
@@ -196,7 +226,7 @@ const styles = StyleSheet.create({
     stat_group: {
         marginBottom: 20,
         // Ajout d'une bordure ou d'un style pour séparer les groupes
-        borderBottomWidth: 1, 
+        borderBottomWidth: 1,
         borderBottomColor: '#ccc',
         paddingBottom: 10,
     },
@@ -209,11 +239,11 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: 'space-between',
         // Utiliser wrap pour les longues listes de boutons
-        flexWrap: 'wrap', 
+        flexWrap: 'wrap',
     },
     button_container: {
         // Pour donner un espace entre les petits boutons
-        marginHorizontal: 4, 
+        marginHorizontal: 4,
         flexGrow: 1, // Permet aux boutons de prendre plus de place
         minWidth: '10%', // S'assurer que les boutons sont utilisables
     },

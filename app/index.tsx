@@ -1,17 +1,34 @@
-import { Link, router } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Link } from "expo-router";
+
 import { useGameContext } from "./contexts/gameContext";
-import { Button, View } from "react-native";
+import { Button, View, Text } from "react-native";
 
 import axios from "axios";
 import { logout } from "./functions/player";
 import { createNewGame } from "./functions/newGame";
+import { useQuery } from "@tanstack/react-query";
 
 const Index = () => {
   const { player, setPlayer, game, setGame } = useGameContext();
 
 
+  const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
+  const fetchGames = async () => {
+    try {
+      const response = await axios.get(`${baseAPIURL}/game/findAll`);
+ 
 
+      return response.data;
+    } catch (error) {
+      console.log(error);
+
+    }
+  }
+  const { data: games, isLoading, error } = useQuery({
+    queryKey: ['games'],
+    queryFn: fetchGames,
+    enabled: player.isLoggedIn
+  })
 
 
   return (
@@ -34,10 +51,20 @@ const Index = () => {
           >
             Profil
           </Link>
-          <Link href={`/stats/${player.id}`} style={{ marginBottom: 20 }}>
+          <Link href={{
+            pathname: ` /stats/[id]`,
+            params: { id: player.id }
+          }} style={{ marginBottom: 20 }}>
             Stats
           </Link>
-
+          <View>
+            <Text>Liste des parties en cours</Text>
+            {isLoading && <Text>Chargement...</Text>}
+            {error && <Text>Erreur de chargement</Text>}
+            {games && games.map((game: { id: string }) => (
+              <Text key={game.id}>{game.id}</Text>
+            ))}
+          </View>
           <Button title="Déconnexion" color="#841584" onPress={() => logout(setPlayer)} />
 
           <Button title="Nouvelle partie" onPress={() => createNewGame(player, setGame)} />

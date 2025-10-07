@@ -11,10 +11,7 @@ const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL;
 const SideChoice = () => {
 
     const { round, setRound, player, game } = useGameContext()
-
-    console.log(round);
-
-
+    console.log(round)
     const chooseSide = async (sideChoosen: 'ATTACK' | 'DEFENSE') => {
         setRound({
             ...round,
@@ -26,14 +23,18 @@ const SideChoice = () => {
                 playerId: player.id,
                 gameId: game.id
             })
-            console.log(response);
+            setRound({
+                ...round,
+                ...response.data, // Fusionne toutes les nouvelles propriétés
+                side: sideChoosen  // S'assure que la string 'ATTACK'/'DEFENSE' est conservée si l'API ne la retourne pas.
+            })
+
+            console.log(round);
 
         } catch (error) {
             console.log(error);
-
         }
         router.navigate('./operator')
-
     }
 
     return (
@@ -43,7 +44,5 @@ const SideChoice = () => {
         </View>
     )
 }
-
-
 
 export default SideChoice

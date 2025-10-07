@@ -20,7 +20,6 @@ model Side {
   label      String
   operators  Operator[]
   roundsSide Round[]    @relation("RoundSide")
-
 }
 
 model GameMode {
@@ -64,6 +63,7 @@ model PlayerAccount {
 model Map {
   id    String @id @default(uuid())
   name  String @unique
+  nameFr String @unique
   games Game[]
 }
 
@@ -105,7 +105,8 @@ model Game {
 
   overtime Boolean? @default(false)
 
-  rounds Round[]
+  rounds     Round[]
+  isFinished Boolean @default(false)
 
   @@index([playerId])
   @@index([mapId])
@@ -128,8 +129,6 @@ model Round {
   side   Side   @relation("RoundSide", fields: [sideId], references: [id])
   sideId String
 
-
-
   operator   Operator? @relation(fields: [operatorId], references: [id])
   operatorId String?
 
@@ -138,6 +137,7 @@ model Round {
   assists      Int     @default(0)
   disconnected Boolean @default(false)
   points       Int     @default(0)
+  isFinished   Boolean @default(false)
 
   @@unique([gameId, roundNumber])
   @@index([gameId])

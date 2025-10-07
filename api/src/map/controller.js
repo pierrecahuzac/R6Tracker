@@ -8,11 +8,11 @@ const MapController = {
       select: {
         id: true,
         name: true,
+        nameFr:true
       },
     });    
     return res.status(200).json(maps);
 
-   
   },
 };
 

@@ -5,6 +5,7 @@ export interface Player {
   username: string;
   email: string;
   isLoggedIn: boolean;
+  language: string
 }
 
 export interface Round {
@@ -20,6 +21,7 @@ export interface Round {
   assists: number;
   disconnected: boolean;
   points: number;
+  result: string
 }
 
 export interface Game {
@@ -50,8 +52,6 @@ export interface GameContextValue {
   setGame: (value: Game) => void;
   gameModeChosen: string;
   setGameModeChosen: (value: string) => void;
-  mapChosen: string;
-  setMapChosen: (value: string) => void;
   round: Round;
   setRound: (value: Round) => void;
   score: Score;

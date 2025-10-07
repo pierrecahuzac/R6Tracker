@@ -7,6 +7,14 @@ router.post(
   "/create",   
   RoundController.create
 );
+router.put(
+  "/update/:roundId",   
+  RoundController.updateRoundById
+);
+// router.put(
+//   "/update/:gameId",   
+//   RoundController.updateByGameId
+// );
 
 
 

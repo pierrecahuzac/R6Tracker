@@ -3,23 +3,20 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { Button, View, Text } from "react-native";
 import { useGameContext } from "./contexts/gameContext";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { log } from "console";
+import { useQuery } from "@tanstack/react-query";
+
 
 const Maps = () => {
-    const queryClient = useQueryClient()
 
-    const { mapChosen, setMapChosen, player, game } = useGameContext()
-    console.log(game.id);
+
+    const { game, setGame, player } = useGameContext()
+
 
 
     const fetchMaps = async () => {
         const response = await axios.get(`${baseAPIURL}/map/getAll`)
             ;
         return response.data;
-
-
-
     }
     const {
         data: mapsData,
@@ -31,18 +28,18 @@ const Maps = () => {
     })
 
 
-    const [mapsList, setMapsList] = useState([])
+
     const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 
     const updateGame = async (mapChosen: string) => {
-        console.log(mapChosen);
+
         try {
             const response = await axios.put(`${baseAPIURL}/game/update/${game.id}`, {
                 data: {
                     map: mapChosen,
                 }
             })
-            console.log(response);
+
 
         } catch (error) {
             console.log(error);
@@ -51,23 +48,43 @@ const Maps = () => {
 
     }
 
-    const handleChooseMap = async (mapName: string) => {
-        setMapChosen(mapName)
-        await updateGame(mapName)
+    const handleChooseMap = async (mapName: string, id: string) => {
+
+        setGame({
+            ...game,
+            map: {
+                name: mapName,
+                id
+            }
+        })
+        await updateGame(mapName, id)
         router.navigate("./sideChoice")
 
 
     }
+
+    
+    const playerLanguage = player.language
     return (
         <View>
             <Text>Liste des cartes</Text>
             {isLoading && <Text>Chargement...</Text>}
             {error && <Text>Erreur de chargement</Text>}
-
-            {mapsData && mapsData.map((map: { name: string }) => (
-                <Button title={map.name} key={map.name} onPress={() => handleChooseMap(map.name)} />
-            ))
-            }
+            {mapsData && mapsData.map((map: { name: string, nameFr: string, id: string }) => (
+                playerLanguage === "Fr" ? (
+                    <Button
+                        title={map.nameFr}
+                        key={map.id}
+                        onPress={() => handleChooseMap(map.name, map.id)}
+                    />
+                ) : (
+                    <Button
+                        title={map.name}
+                        key={map.id}
+                        onPress={() => handleChooseMap(map.name, map.id)}
+                    />
+                )
+            ))}
         </View>
     )
 }
