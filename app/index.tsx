@@ -1,80 +1,102 @@
-import { Link, router } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect } from "react"; 
+import { Link } from "expo-router";
+
 import { useGameContext } from "./contexts/gameContext";
-import { Button, View } from "react-native";
+import { Button, View, Text } from "react-native";
 
 import axios from "axios";
+import { logout } from "./functions/player";
+import { createNewGame } from "./functions/newGame";
+import { useQuery } from "@tanstack/react-query";
+
+import Toast from 'react-native-toast-message';
+
+
 
 const Index = () => {
   const { player, setPlayer, game, setGame } = useGameContext();
 
-  const logout = async () => {
-    setPlayer({
-      id: "",
-      username: "",
-      email: "",
-    });
 
+  const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
+  const fetchGames = async () => {
     try {
-      await AsyncStorage.multiRemove([
-        "playerId",
-        "username",
-        "email",
-        "isLoggedIn",
-      ]);
-    } catch (e) {
-      console.error("Erreur AsyncStorage:", e);
+      const response = await axios.get(`${baseAPIURL}/game/findAll`);
+
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+
     }
-    router.navigate("./");
-  };
-  console.log(player.id);
+  }
+  const { data: games, isLoading, error } = useQuery({
+    queryKey: ['games'],
+    queryFn: fetchGames,
+    enabled: player.isLoggedIn
+  })
 
-  const createNewGame = async () => {
-    const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL;
-
-    const response = await axios.post(`${baseAPIURL}/game/create`, {
-      playerId: player.id,
-    });
-    console.log(response);
-
-    if (response.status === 201) {
-      setGame(response.data);
-      router.navigate("./newGame");
+  useEffect(() => {
+    
+    
+    if(player.username) {
+      setTimeout(() => {
+      Toast.show({
+        type: 'success',
+        text1: `Bienvenu ${player.username}!`, 
+        autoHide:true,
+        visibilityTime: 1000,
+      })
+    }, 1000)
     }
-  };
+    
+  }, [])
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      {player && player.isLoggedIn === true ? (
-        <View style={{ alignItems: "center" }}>
-          <Link href={`/player/${player.id}`} style={{ marginBottom: 20 }}>
-            Bienvenue, {player.username}
-          </Link>
+    
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {player && player.isLoggedIn === true ? (
+          <View style={{ alignItems: "center" }}>
+            <Link href={`/player/${player.id}`} style={{ marginBottom: 20 }}>
+              Bienvenue, {player.username}
+            </Link>
 
-          <Link
-            href={{ pathname: `/player/[id]`, params: { id: player.id } }}
-            style={{ marginBottom: 4 }}
-          >
-            Profil
-          </Link>
-          <Link href={`/stats/${player.id}`} style={{ marginBottom: 20 }}>
-            Stats
-          </Link>
+            <Link
+              href={{ pathname: `/player/[id]`, params: { id: player.id } }}
+              style={{ marginBottom: 4 }}
+            >
+              Profil
+            </Link>
+            <Link href={{
+              pathname: ` /stats/[id]`,
+              params: { id: player.id }
+            }} style={{ marginBottom: 20 }}>
+              Stats
+            </Link>
+            <View>
+              <Text>Liste des parties en cours</Text>
+              {isLoading && <Text>Chargement...</Text>}
+              {error && <Text>Erreur de chargement</Text>}
+              {games && games.map((game: { id: string }) => (
+                <Text key={game.id}>{game.id}</Text>
+              ))}
+            </View>
+            <Button title="Déconnexion" color="#841584" onPress={() => logout(setPlayer)} />
 
-          <Button title="Déconnexion" color="#841584" onPress={logout} />
-
-          <Button title="Nouvelle partie" onPress={createNewGame} />
-          {/* <Link href={`/newGame`} style={{ marginTop: 20 }}>Nouvelle partie</Link> */}
-        </View>
-      ) : (
-        <Link href={`/signin`}>Connexion</Link>
-      )}
-    </View>
+            <Button title="Nouvelle partie" onPress={() => createNewGame(player, setGame)} />
+            {/* <Link href={`/newGame`} style={{ marginTop: 20 }}>Nouvelle partie</Link> */}
+          </View>
+        ) : (
+          <Link href={`/signin`}>Connexion</Link>
+        )}
+        <Toast />
+      </View>
+   
   );
 };
 

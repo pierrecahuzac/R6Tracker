@@ -21,6 +21,7 @@ const PlayerController = {
         message: "Utilisateur déjà existant",
       });
     }
+    
     const player = await prisma.player.create({
       data: {
         username,

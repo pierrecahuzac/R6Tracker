@@ -1,39 +1,90 @@
-import { Button, View } from "react-native"
-import { useGameContext } from "./contexts/gameContext";
-import { useEffect, useState } from "react";
 import axios from "axios";
 import { router } from "expo-router";
+import { useState } from "react";
+import { Button, View, Text } from "react-native";
+import { useGameContext } from "./contexts/gameContext";
+import { useQuery } from "@tanstack/react-query";
+
 
 const Maps = () => {
-    const { mapChoosen, setMapChoosen, player } = useGameContext()
-    useEffect(() => {
-        fetchMaps()
-    }, [])
-   console.log('player',player);
-   
-    const [mapsList, setMapsList] = useState([])
-    const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
+
+
+    const { game, setGame, player } = useGameContext()
+
+
 
     const fetchMaps = async () => {
         const response = await axios.get(`${baseAPIURL}/map/getAll`)
-        console.log(response);
-        setMapsList(response.data);
+            ;
+        return response.data;
     }
-    const handleChooseMap = (mapName: string) => {
-        setMapChoosen(mapName)
+    const {
+        data: mapsData,
+        isLoading,
+        error
+    } = useQuery({
+        queryKey: ['maps'],
+        queryFn: fetchMaps
+    })
 
-        console.log(mapName);
-        router.navigate("./sideChoice")
-        //router.navigate("./operator")
+
+
+    const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
+
+    const updateGame = async (mapChosen: string) => {
+
+        try {
+            const response = await axios.put(`${baseAPIURL}/game/update/${game.id}`, {
+                data: {
+                    map: mapChosen,
+                }
+            })
+
+
+        } catch (error) {
+            console.log(error);
+            return
+        }
 
     }
-    return (
-        <View>Liste des cartes
 
-            {mapsList && mapsList.map((map: { name: string }) => (
-                <Button title={map.name} key={map.name} onPress={() => handleChooseMap(map.name)} />
-            ))
+    const handleChooseMap = async (mapName: string, id: string) => {
+
+        setGame({
+            ...game,
+            map: {
+                name: mapName,
+                id
             }
+        })
+        await updateGame(mapName, id)
+        router.navigate("./sideChoice")
+
+
+    }
+
+    
+    const playerLanguage = player.language
+    return (
+        <View>
+            <Text>Liste des cartes</Text>
+            {isLoading && <Text>Chargement...</Text>}
+            {error && <Text>Erreur de chargement</Text>}
+            {mapsData && mapsData.map((map: { name: string, nameFr: string, id: string }) => (
+                playerLanguage === "Fr" ? (
+                    <Button
+                        title={map.nameFr}
+                        key={map.id}
+                        onPress={() => handleChooseMap(map.name, map.id)}
+                    />
+                ) : (
+                    <Button
+                        title={map.name}
+                        key={map.id}
+                        onPress={() => handleChooseMap(map.name, map.id)}
+                    />
+                )
+            ))}
         </View>
     )
 }

@@ -1,10 +1,8 @@
-import axios from "axios"
-import { useEffect, useState } from "react"
-import { View, Text, StyleSheet, ActivityIndicator, Alert, Button, Image, ScrollView, Pressable } from "react-native"
+import axios from "axios";
+import { router } from "expo-router";;
+import { ActivityIndicator, Alert, Button, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useGameContext } from "./contexts/gameContext";
-import { log } from "console";
-import { userInfo } from "os";
-import { router } from "expo-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type Operator = {
     id: string;
@@ -12,76 +10,46 @@ type Operator = {
     icon: string;
 }
 
-
 const Operator = () => {
     const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
     const { round, setRound } = useGameContext()
 
-
-    const [operatorsList, setOperatorsList] = useState<Operator[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    //@ts-ignore
+    // @ts-ignore
     const roundSide = round.side
 
-    // à rajouter dans le profil (userContext par exemple) de l'utilisateur
+
     const user = {
         preferences: {
-            icone: false,
+            image: false,
             icon: true
         }
     }
 
-    useEffect(() => {
-        fetchOperatorsBySide();
-    }, []);
-
-    // const fetchOperators = async () => {
-    //     setLoading(true); // Début du chargement
-    //     setError(null);
-    //     try {
-    //         const response = await axios.get(`${baseAPIURL}/operator/getAll`);
-
-    //         // Assurez-vous que la réponse est un tableau
-    //         if (Array.isArray(response.data)) {
-    //             setOperatorsList(response.data);
-    //         } else {
-    //             throw new Error("Format de données invalide reçu de l'API.");
-    //         }
-    //     } catch (e) {
-    //         console.error("Erreur de récupération des agents:", e);
-    //         setError("Impossible de charger la liste des agents.");
-    //         Alert.alert("Erreur de connexion", "Vérifiez la connexion au serveur API.");
-    //     } finally {
-    //         setLoading(false); // Fin du chargement
-    //     }
-    // }
     const fetchOperatorsBySide = async () => {
-        setLoading(true);
-        setError(null);
         try {
-            const response = await axios.get(`${baseAPIURL}/operator/getAllOperatorsBySide/${roundSide}`,);
-
-         
-
+            const response = await axios.get(`${baseAPIURL}/operator/getAllOperatorsBySide/${roundSide}`);
             if (Array.isArray(response.data)) {
-                setOperatorsList(response.data);
+                return response.data
             } else {
                 throw new Error("Format de données invalide reçu de l'API.");
             }
         } catch (e) {
             console.error("Erreur de récupération des agents:", e);
-            setError("Impossible de charger la liste des agents.");
             Alert.alert("Erreur de connexion", "Vérifiez la connexion au serveur API.");
-        } finally {
-            setLoading(false); // Fin du chargement
         }
     }
 
-    // --- Rendu conditionnel ---
+    const {
+        data: operators,
+        isLoading,
+        error
+    } = useQuery({
+        queryKey: ['operators'],
+        queryFn: fetchOperatorsBySide
+    })
 
-    if (loading) {
+
+    if (isLoading) {
         return (
             <View style={[styles.container, styles.center]}>
                 <ActivityIndicator size="large" color="#0000ff" />
@@ -101,13 +69,12 @@ const Operator = () => {
 
 
     const operatorChoosen = (operator: Operator) => {
-     
         setRound({
             ...round,
             operatorId: operator.id,
             operator
         });
- 
+
         router.navigate('./round')
 
 
@@ -116,14 +83,14 @@ const Operator = () => {
     return (
         <ScrollView style={styles.container}>
             <View>
-                <Text style={styles.title}>Liste des agents ({operatorsList.length})
+                <Text style={styles.title}>Liste des agents ({operators.length})
                 </Text>
             </View>
             <View style={styles.operator_list}>
                 {
-                    operatorsList.map((operator: Operator) => {
+                    operators && operators.map((operator: Operator) => {
                         return (
-                            <Pressable onPress={() => operatorChoosen(operator)}>
+                            <Pressable onPress={() => operatorChoosen(operator)} key={operator.id}>
                                 {/* L'utilisatruer pourra choisir dans son profil si il préfére les icones ou les images */}
                                 {user.preferences.icon ?
                                     <Image

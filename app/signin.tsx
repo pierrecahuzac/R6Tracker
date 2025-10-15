@@ -4,18 +4,18 @@ import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGameContext } from "./contexts/gameContext";
 import axios from "axios";
-
+import Toast from 'react-native-toast-message';
 const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 
 const Signin = () => {
   const { player, setPlayer } = useGameContext();
   const [login, setLogin] = useState(
     {
-      email: 'test@est.fr',
+      email: 'test@test.fr',
       password: 'test'
     }
   );
-  
+
 
   const handleLogin = async () => {
 
@@ -24,7 +24,7 @@ const Signin = () => {
       return;
     }
     try {
-      
+
       const response = await axios.post(`${baseAPIURL}/player/login`,
         {
           email: login.email,
@@ -45,8 +45,12 @@ const Signin = () => {
       await AsyncStorage.setItem('username', fullPlayerObject.username);
       await AsyncStorage.setItem('email', fullPlayerObject.email);
       await AsyncStorage.setItem('isLoggedIn', "true");
-
-      router.navigate('./');
+      Toast.show({
+        type: 'success',
+        text1: 'Connexion réussie',
+        text2: 'Bienvenue ' + fullPlayerObject.username,
+      })
+     router.navigate('./');
     } catch (error) {
       console.log("Erreur inattendue:", error);
       Alert.alert("Erreur", "Une erreur inattendue est survenue.");
@@ -106,7 +110,7 @@ const Signin = () => {
       <View style={{ width: 240, marginBottom: 16 }}>
         <Button title="Se connecter" onPress={handleLogin} />
       </View>
-
+      <Toast />
     </View>
   );
 }

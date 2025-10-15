@@ -20,7 +20,6 @@ model Side {
   label      String
   operators  Operator[]
   roundsSide Round[]    @relation("RoundSide")
-  roundsWin  Round[]    @relation("RoundWinningSide")
 }
 
 model GameMode {
@@ -29,12 +28,12 @@ model GameMode {
   games Game[]
 }
 
-model Result {
-  id    String @id @default(uuid())
-  name  String @unique
-  label String
-  games Game[]
-}
+// model Result {
+//   id    String @id @default(uuid())
+//   name  String @unique
+//   label String
+//   games Game[]
+// }
 
 model Player {
   id        String          @id @default(uuid())
@@ -44,6 +43,7 @@ model Player {
   password  String
   accounts  PlayerAccount[]
   games     Game[]
+  rounds    Round[]
 }
 
 model PlayerAccount {
@@ -61,9 +61,10 @@ model PlayerAccount {
 }
 
 model Map {
-  id    String @id @default(uuid())
-  name  String @unique
-  games Game[]
+  id     String @id @default(uuid())
+  name   String @unique
+  nameFr String @unique
+  games  Game[]
 }
 
 model Operator {
@@ -94,19 +95,17 @@ model Game {
   platform   Platform? @relation(fields: [platformId], references: [id])
   platformId String?
 
-  account   PlayerAccount? @relation(fields: [accountId], references: [id])
-  accountId String?
-
-
-
-  playerScore   Int?    @default(0)
-  opponentScore Int?    @default(0)
-  result        Result? @relation(fields: [resultId], references: [id])
-  resultId      String?
-
-  overtime Boolean? @default(false)
-
-  rounds Round[]
+  account       PlayerAccount? @relation(fields: [accountId], references: [id])
+  accountId     String?
+  playerScore   Int?           @default(0)
+  opponentScore Int?           @default(0)
+  // result        Result?        @relation(fields: [resultId], references: [id])
+  // resultId      String?
+  status        String?
+  overtime      Boolean?       @default(false)
+  roundNumber   Int?           @default(0)
+  rounds        Round[]
+  isFinished    Boolean        @default(false)
 
   @@index([playerId])
   @@index([mapId])
@@ -119,25 +118,25 @@ model Round {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
 
-  game   Game   @relation(fields: [gameId], references: [id])
-  gameId String
+  game     Game   @relation(fields: [gameId], references: [id])
+  gameId   String
+  player   Player @relation(fields: [playerId], references: [id])
+  playerId String
 
   roundNumber Int
 
   side   Side   @relation("RoundSide", fields: [sideId], references: [id])
   sideId String
 
-  winningSide   Side   @relation("RoundWinningSide", fields: [winningSideId], references: [id])
-  winningSideId String
-
-  operator   Operator? @relation(fields: [operatorId], references: [id])
-  operatorId String?
-
-  kills        Int     @default(0)
-  death        Boolean @default(false)
-  assists      Int     @default(0)
-  disconnected Boolean @default(false)
-  points       Int     @default(0)
+  operator     Operator? @relation(fields: [operatorId], references: [id])
+  operatorId   String?
+  roundResult  String?
+  kills        Int       @default(0)
+  death        Boolean   @default(false)
+  assists      Int       @default(0)
+  disconnected Boolean   @default(false)
+  points       Int       @default(0)
+  isFinished   Boolean   @default(false)
 
   @@unique([gameId, roundNumber])
   @@index([gameId])
