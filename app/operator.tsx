@@ -10,7 +10,6 @@ type Operator = {
     icon: string;
 }
 
-
 const Operator = () => {
     const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
     const { round, setRound } = useGameContext()
@@ -24,7 +23,7 @@ const Operator = () => {
             image: false,
             icon: true
         }
-    }  
+    }
 
     const fetchOperatorsBySide = async () => {
         try {

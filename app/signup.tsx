@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
 
 //import { createClient } from '@supabase/supabase-js'
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import axios from "axios";
+import Toast from "react-native-toast-message";
 
 
 const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
@@ -43,11 +44,22 @@ const Signup = () => {
           'Content-Type': 'application/json'
         }
       });
+      Toast.show({
+        type: 'success',
+        text1: 'Compte crée avec succès',
+        text2: 'Veuillez vous connecter',
+      })
+      setTimeout(() => {
+        router.navigate('./signin');
+      },
+        2000
+      )
 
-
-    } catch (error) {
-      console.log("Erreur inattendue:", error);
-      Alert.alert("Erreur", "Une erreur inattendue est survenue.");
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: `${error.response.data.message}`
+      })
     }
   };
 
@@ -140,6 +152,7 @@ const Signup = () => {
       <View style={{ width: 240, marginBottom: 16 }}>
         <Button title="Créer mon compte" onPress={handleSubmitAccount} />
       </View>
+      <Toast />
     </View>
   );
 }

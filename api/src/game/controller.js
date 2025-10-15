@@ -26,79 +26,76 @@ const GameController = {
   },
 
   updateByGameId: async (req, res) => {
-    const gameId = req.params.gameId;
-    const { gameMode, map } = req.body.data;
+    try {
+      const gameId = req.params.gameId;
+      //console.log(req.body);
 
-    const updateData = {};
-    let mapIdToConnect = null;
-    // ===================================================
-    // 2. LOGIQUE POUR LA CARTE (Map)
-    // ===================================================
-    // 🚨 CORRECTION LOGIQUE: La condition pour vérifier si 'mapName' est fourni et non nul
-    if (map) {
-      // 🚨 CORRECTION SYNTAXE: Le champ unique dans le modèle Map est 'name', pas 'map'
-      const mapToFind = await prisma.map.findUnique({
-        where: {
-          name: map, // Utilise le nom de la carte pour la trouver
-        },
-        select: {
-          id: true,
-        },
-      });
+      const { gameMode, map } = req.body.data || {};
+      const roundNumber = req.body || 0;
+      // console.log(gameMode, map, roundNumber);
 
-      if (!mapToFind) {
-        // Gérer le cas où la carte n'existe pas
-        return res
-          .status(404)
-          .json({ error: `Carte '${mapName}' non trouvée.` });
+      const updateData = {};
+      let mapIdToConnect = null;
+
+      if (map) {
+        const mapToFind = await prisma.map.findUnique({
+          where: {
+            name: map,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        if (!mapToFind) {
+          // Gérer le cas où la carte n'existe pas
+          return res
+            .status(404)
+            .json({ error: `Carte '${mapName}' non trouvée.` });
+        }
+
+        mapIdToConnect = mapToFind.id;
       }
 
-      mapIdToConnect = mapToFind.id;
-    }
+      if (mapIdToConnect) {
+        updateData.map = {
+          connect: { id: mapIdToConnect },
+        };
+      }
 
-    // ===================================================
-    // 3. CONSTRUCTION DE L'OBJET DATA POUR PRISMA
-    // ===================================================
+      if (gameMode) {
+        updateData.mode = {
+          connect: { name: gameMode },
+        };
+      }
+      if (roundNumber) {
+        updateData.roundNumber = parseInt(roundNumber, 10);
+      }
 
-    // Mettre à jour la Carte (si mapIdToConnect est défini)
-    if (mapIdToConnect) {
-      updateData.map = {
-        connect: { id: mapIdToConnect },
-      };
-    }
-    // Si mapName était nul/vide et que vous voulez dissocier (déconnecter) la map:
-    /* else if (mapName === null) {
-        updateData.map = { disconnect: true };
-    } */
+      // 🚨 GÉRER LES CAS OÙ AUCUNE DONNÉE N'EST FOURNIE :
+      if (Object.keys(updateData).length === 0) {
+        return res
+          .status(400)
+          .json({ message: "Aucune donnée de mise à jour valide fournie." });
+      }
 
-    // Mettre à jour le Mode (si modeName est défini)
-    if (gameMode) {
-      // Puisque 'name' est unique dans GameMode, cette syntaxe est CORRECTE.
-      updateData.mode = {
-        connect: { name: gameMode },
-      };
+      // ===================================================
+      // 4. EXÉCUTION DE LA MISE À JOUR
+      // ===================================================
+      const gameToFindAndUpdate = await prisma.game.update({
+        where: {
+          id: gameId,
+        },
+        data: updateData,
+      });
+      if (!gameToFindAndUpdate) {
+        return res.status(404).json("Partie non trouvée");
+      }
+      return res.status(200).json(gameToFindAndUpdate);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(error);
     }
-
-    // 🚨 GÉRER LES CAS OÙ AUCUNE DONNÉE N'EST FOURNIE :
-    if (Object.keys(updateData).length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Aucune donnée de mise à jour valide fournie." });
-    }
-
-    // ===================================================
-    // 4. EXÉCUTION DE LA MISE À JOUR
-    // ===================================================
-    const gameToFindAndUpdate = await prisma.game.update({
-      where: {
-        id: gameId,
-      },
-      data: updateData,
-    });
-    if (!gameToFindAndUpdate) {
-      return res.status(404).json("Partie non trouvée");
-    }
-    return res.status(200).json(gameToFindAndUpdate);
   },
   findAll: async (req, res) => {
     try {

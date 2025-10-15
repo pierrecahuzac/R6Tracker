@@ -8,6 +8,7 @@ export const createNewGame = async (
     const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL;
     const response = await axios.post(`${baseAPIURL}/game/create`, {
         playerId: player.id,
+        
     });
     if (response.status === 201) {
         setGame(response.data);

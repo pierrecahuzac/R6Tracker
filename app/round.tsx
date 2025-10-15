@@ -1,8 +1,11 @@
 import { Button, TextInput, View, StyleSheet, Text, Pressable } from "react-native"
 import { useGameContext } from "./contexts/gameContext";
-import { useEffect } from "react";
 import axios from "axios";
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
+import { platform } from "os";
+import Toast from "react-native-toast-message";
+
 
 // --- Types pour la réutilisation des boutons ---
 type StatKey = 'kills' | 'assists' | 'death' | 'disconnected';
@@ -37,24 +40,119 @@ const StatButton = ({ title, value, stat, setRound, round }: StatButtonProps) =>
 
 const Round = () => {
     const { round, setRound, game } = useGameContext()
+
+
     const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 
     const statValues = [0, 1, 2, 3, 4, 5];
     const statValuesResult = ["Victory", "Defeat", "Draw"];
+    const [statsForGame, setStatsForGame] = useState({
+        totalKills: 0,
+        totalAssists: 0,
+        totalPoints: 0,
+        totalDeaths: 0,
+        totalRounds: 0,
+        totalDisconnected: 0,
+        playerScore: 0,
+        opponentScore: 0
+    })
+    // const validRound = async () => {
+    //     try {
+    //         const response = await axios.put(`${baseAPIURL}/round/update/${round.id}`, {
+    //             round,
+    //             isFinished: true
+    //         })
+    //         console.log(response.data.gameStatus);
 
+    //         if (response.data.gameStatus === 'PLAYER_WON') {
+    //             Toast.show({
+    //                 type: 'success',
+    //                 text1: 'Victoire',
+
+    //             })
+    //             return
+    //         }
+    //         if (response.data.gameStatus === 'PLAYER_LOST') {
+    //             Toast.show({
+    //                 type: 'error',
+    //                 text1: 'Défaite',
+
+    //             })
+    //             return
+    //         }
+    //         if (response.data.gameStatus === 'IN_PROGRESS') {
+    //             setTimeout(() => {
+    //                 Toast.show({
+    //                     type: 'success',
+    //                     text1: 'Round suivant',
+
+    //                 })
+    //             }, 1000);
+    //             setRound({
+    //                 id: '',
+    //                 roundNumber: round.roundNumber + 1,
+    //                 gameId: game.id,
+    //                 sideId: "",
+    //                 sideName: "",
+    //                 winningSideId: "",
+    //                 operatorId: "",
+    //                 kills: 0,
+    //                 death: false,
+    //                 assists: 0,
+    //                 disconnected: false,
+    //                 points: 0,
+    //                 isFinished: true
+
+    //             }),
+
+    //                 router.navigate('/sideChoice')
+    //         }
+
+
+
+    //     } catch (error) {
+    //         console.log(error);
+
+    //     }
+    // }
     const validRound = async () => {
         try {
             const response = await axios.put(`${baseAPIURL}/round/update/${round.id}`, {
-                round
+                round,
+                isFinished: true
             })
-            console.log(response);
-            if (response.status === 200) {
+            const { gameStatus, finalScore } = response.data;
+            console.log(gameStatus, finalScore);
+
+
+            if (gameStatus === 'PLAYER_WON' || gameStatus === 'PLAYER_LOST' || gameStatus === 'MATCH_DRAW') {
+                console.log(('je suis là'));
+
+                Toast.show({
+                    type: gameStatus === 'PLAYER_WON' ? 'success' : 'error',
+                    text1: gameStatus === 'PLAYER_WON' ? 'Victoire !' : (gameStatus === 'PLAYER_LOST' ? 'Défaite !' : 'Match Nul !'),
+                    text2: `Score final: ${finalScore}`,
+                });
+                router.navigate({
+                    pathname: '/endGame',
+                    params: { status: gameStatus, score: finalScore }
+                });
+                return
+            }
+
+            if (gameStatus === 'IN_PROGRESS' || gameStatus === 'OVERTIME') {
+                setTimeout(() => {
+                    Toast.show({
+                        type: 'success',
+                        text1: gameStatus === 'OVERTIME' ? 'Prolongations !' : 'Round suivant',
+                    })
+                }, 100);
+
+
                 setRound({
                     id: '',
                     roundNumber: round.roundNumber + 1,
-
                     gameId: game.id,
-
                     sideId: "",
                     sideName: "",
                     winningSideId: "",
@@ -64,12 +162,82 @@ const Round = () => {
                     assists: 0,
                     disconnected: false,
                     points: 0,
-
+                    isFinished: false
                 }),
+
 
                     router.navigate('/sideChoice')
             }
 
+        } catch (error) {
+            console.error("Erreur lors de la validation du round:", error);
+            Toast.show({
+                type: 'error',
+                text1: 'Erreur',
+                text2: "Échec de la validation du round.",
+            });
+        }
+    }
+
+
+    const handlePointChange = (text: string) => {
+        const numericValue = text.replace(/[^0-9]/g, '');
+        const value = parseInt(numericValue);
+        setRound({
+            ...round,
+            points: isNaN(value) ? 0 : value
+        })
+    }
+
+    const getAllRoundsInGame = async () => {
+        try {
+            const response = await axios.get(`${baseAPIURL}/round/${game.id}`)
+            console.log('getAllRoundsInGame', response.data.result);
+            const initialStats = {
+                totalKills: 0,
+                totalAssists: 0,
+                totalPoints: 0,
+                totalDeaths: 0,
+                totalRounds: 0,
+                totalDisconnected: 0,
+                playerScore: 0,
+                opponentScore: 0
+            };
+            type AccProps = {
+                totalKills: number; totalAssists: number; totalPoints: number; totalDeaths: number; totalRounds: number; totalDisconnected: number; playerScore: number; opponentScore: number
+            }
+            type RoundProps = { kills: number; assists: number; points: number; death: boolean; disconnected: number; roundResult: string, isFinished: boolean }
+
+            const aggregatedStats = response.data.result.reduce((acc: AccProps, round: RoundProps) => {
+                acc.totalKills += round.kills;
+                acc.totalAssists += round.assists;
+                acc.totalPoints += round.points;
+                acc.totalDisconnected += round.disconnected;
+                // acc.playerScore += round.roundResult === 'Victory' ? 1 : 0;
+                // acc.opponentScore += round.roundResult === 'Defeat' ? 1 : 0;
+                if (round.isFinished === true) {
+                    if (round.roundResult === null) {
+                        acc.playerScore += 0;
+                        acc.opponentScore += 0;
+                    }
+                    else if (round.roundResult === 'Victory') {
+                        acc.playerScore += 1;
+                    } else if (round.roundResult === 'Defeat') {
+                        acc.opponentScore += 1;
+                    } else if (round.roundResult === 'Draw') {
+                        acc.playerScore += 1;
+                        acc.opponentScore += 1;
+                    }
+                }
+                if (round.death === true) {
+                    acc.totalDeaths += 1;
+                }
+                acc.totalRounds += 1;
+                return acc;
+            }, initialStats);
+            console.log('aggregatedStats', aggregatedStats);
+
+            setStatsForGame(aggregatedStats)
 
         } catch (error) {
             console.log(error);
@@ -77,27 +245,23 @@ const Round = () => {
         }
     }
 
-
-    const handlePointChange = (text: string) => {
-
-        const numericValue = text.replace(/[^0-9]/g, '');
-
-
-        const value = parseInt(numericValue);
-
-        setRound({
-            ...round,
-
-            points: isNaN(value) ? 0 : value
-        })
+    const fetchDatas = async () => {
+        await getAllRoundsInGame()
     }
+    useEffect(() => {
+        fetchDatas()
+    }, [])
 
     return (
         <View style={styles.main_container}>
-            <Text style={styles.title}>Round {round.roundNumber + 1}</Text>
+            <Text style={styles.title}>Round {round.roundNumber}</Text>
 
             <View style={styles.score_container}>
-                <Text style={styles.score_text}>Score 0 - 0</Text>
+                <Text style={styles.score_text}>
+                    Score : <Text>Joueur {statsForGame.playerScore ? Number(statsForGame.playerScore) : 0}</Text> - <Text>Adversaire {statsForGame.opponentScore ? Number(statsForGame.opponentScore) : 0}</Text>
+
+                </Text>
+
             </View>
 
             {/* Section VICTOIRE */}
@@ -109,7 +273,7 @@ const Round = () => {
                             key={roundResult}
                             title={roundResult}
                             value={roundResult}
-                            stat="result"
+                            stat="roundResult"
                             setRound={setRound}
                             round={round}
                         />
@@ -173,7 +337,7 @@ const Round = () => {
                 <TextInput
                     style={styles.text_input}
                     placeholder="Points"
-                    // 🚨 Correction : S'assurer que la 'value' du TextInput est une chaîne
+
                     value={round.points !== undefined ? String(round.points) : ''}
                     keyboardType="numeric"
                     onChangeText={handlePointChange}
@@ -185,17 +349,23 @@ const Round = () => {
             {
                 round.roundNumber > 1 &&
                 <View style={styles.recap_container}>
-                    <Text>Récapitulatif (Round précédent) :</Text>
-                    <Text>Kill : {round.kills}</Text>
-                    <Text>Assists : {round.assists}</Text>
-                    <Text>Points : {round.points}</Text>
-                    <Text>Mort : {round.death ? 'Oui' : 'Non'}</Text>
-                    <Text>Déconnexion : {round.disconnected ? 'Oui' : 'Non'}</Text>
+                    <Text>Récapitulatif de la partie :</Text>
+                    <Text>Rounds joués : {Number(statsForGame?.totalRounds) - 1}</Text>
+                    <Text>Kill : {statsForGame?.totalKills}</Text>
+                    <Text>Assists : {statsForGame?.totalAssists}</Text>
+                    <Text>Points : {statsForGame?.totalPoints}</Text>
+                    <Text>Mort : {statsForGame?.totalDeaths}</Text>
+                    <Text>Déconnexion : {statsForGame?.totalDisconnected}</Text>
+
                 </View>
             }
 
             <View style={styles.submit_button_container}>
-                <Button title="Valider le round" onPress={() => validRound()} />
+                {game.overtime ?
+                    <Button title="Prolongations" onPress={() => validRound()} /> :
+                    <Button title="Round suivant" onPress={() => validRound()} />
+                }
+
             </View>
         </View>
     )

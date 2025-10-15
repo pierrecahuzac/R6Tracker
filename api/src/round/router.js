@@ -11,10 +11,9 @@ router.put(
   "/update/:roundId",   
   RoundController.updateRoundById
 );
-// router.put(
-//   "/update/:gameId",   
-//   RoundController.updateByGameId
-// );
+
+router.get("/:gameId", RoundController.findRoundsStatsByGameId)
+
 
 
 

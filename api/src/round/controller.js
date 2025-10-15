@@ -13,34 +13,39 @@ const RoundController = {
       return;
     }
 
-    // const playerToFind = await prisma.player.findUnique({
-    //   where: {
-    //     id: String(playerId),
-    //   },
-    // });
+    try {
+      const lastRound = await prisma.round.findFirst({
+        where: { gameId: gameId },
+        orderBy: { roundNumber: "desc" },
+        select: { roundNumber: true },
+      });
+      const newRoundNumber = (lastRound?.roundNumber || 0) + 1;
 
-    const round = await prisma.round.create({
-      data: {
-        side: {
-          connect: {
-            name: sideChoosen,
+      const round = await prisma.round.create({
+        data: {
+          side: {
+            connect: {
+              name: sideChoosen,
+            },
+          },
+          game: {
+            connect: {
+              id: gameId,
+            },
+          },
+          roundNumber: newRoundNumber,
+          player: {
+            connect: {
+              id: playerId,
+            },
           },
         },
-        game: {
-          connect: {
-            id: gameId,
-          },
-        },
-        roundNumber: 1,
-        player: {
-          connect: {
-            id: playerId,
-          },
-        },
-      },
-    });
+      });
 
-    return res.status(201).json(round);
+      return res.status(201).json(round);
+    } catch (error) {
+      console.log(error);
+    }
   },
 
   updateByGameId: async (req, res) => {
@@ -119,34 +124,123 @@ const RoundController = {
     return res.status(200).json(gameToFindAndUpdate);
   },
   updateRoundById: async (req, res) => {
-    const roundId= req.params.roundId
-    const round= req.body.round
-    console.log(round,);
-    
+    const { roundId } = req.params;
+    const { round, isFinished } = req.body;
+
     try {
       const updatedRound = await prisma.round.update({
-        where: {
-          id: roundId
-        }
-        ,
-        data:{
-          kills :round.kills,
+        where: { id: roundId },
+        data: {
+          kills: round.kills,
           assists: round.assists,
           roundNumber: round.roundNumber,
           death: round.death,
           disconnected: round.disconnected,
-          points: round.points
+          points: round.points,
+          roundResult: round.roundResult,
+          isFinished: req.body.isFinished ? true : false,
+          operatorId: round.operatorId,
+        },
+      });
+
+      const { playerScore, opponentScore } = await calculateCurrentScore(
+        updatedRound.gameId
+      );
+      const pScore = Number(playerScore);
+      const oScore = Number(opponentScore);
+
+      let gameStatus = "IN_PROGRESS";
+
+      if (pScore === 4 && oScore <= 2) {
+        gameStatus = "PLAYER_WON";
+      } else if (oScore === 4 && pScore <= 2) {
+        gameStatus = "PLAYER_LOST";
+      } else if (pScore === 5 && pScore > oScore) {
+        gameStatus = "PLAYER_WON";
+      } else if (oScore === 5 && oScore > pScore) {
+        gameStatus = "PLAYER_LOST";
+      } else if (pScore === 5 && oScore === 5) {
+        gameStatus = "MATCH_DRAW";
+      } else if (pScore === 3 && oScore === 3) {
+        gameStatus = "OVERTIME";
+      } else if (req.body.forceDraw === true) {
+        gameStatus = "MATCH_DRAW";
+      } 
+
+      if (gameStatus !== "IN_PROGRESS") {
+        const updateData = {
+          status: gameStatus,
+          playerScore: pScore,
+          opponentScore: oScore,
+        };
+
+        if (gameStatus === "OVERTIME") {
+          updateData.overtime = true;
         }
-      })
-      console.log(updatedRound);
-      
+
+        await prisma.game.update({
+          where: { id: updatedRound.gameId },
+          data: updateData,
+        });
+      }
+
       return res.status(200).json({
-        updatedRound
-      })
+        updatedRound,
+        gameStatus: gameStatus,
+        finalScore: `${pScore}-${oScore}`,
+      });
     } catch (error) {
-      console.log(error);
+      console.error("Erreur lors de la mise à jour du round:", error);
+      throw error;
     }
+  },
+
+  findRoundsStatsByGameId: async (req, res) => {
+    try {
+      const gameId = req.params.gameId;
+
+      const result = await prisma.round.findMany({
+        where: {
+          gameId,
+        },
+      });
+
+      return res.status(200).json({
+        result,
+      });
+    } catch (error) {}
   },
 };
 
 module.exports = RoundController;
+
+const calculateCurrentScore = async (gameId) => {
+  // 1. Récupérer tous les rounds terminés pour ce jeu
+  const finishedRounds = await prisma.round.findMany({
+    where: {
+      gameId: gameId,
+      isFinished: true,
+    },
+    select: {
+      roundResult: true,
+    },
+  });
+
+  let playerScore = 0;
+  let opponentScore = 0;
+
+  // 2. Calculer le score
+  finishedRounds.forEach((round) => {
+    if (round.roundResult === "Victory") {
+      playerScore += 1;
+    } else if (round.roundResult === "Defeat") {
+      opponentScore += 1;
+    } else if (round.roundResult === "Draw") {
+      // Un point pour chaque camp en cas d'égalité (selon votre règle)
+      playerScore += 1;
+      opponentScore += 1;
+    }
+  });
+
+  return { playerScore, opponentScore };
+};

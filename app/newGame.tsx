@@ -12,14 +12,14 @@ const NewGame = () => {
     const baseAPIURL = process.env.EXPO_PUBLIC_BASE_API_URL
 
 
-    const { setGameMode, game, setGame } = useGameContext()
+    const {  game, setGame } = useGameContext()
    
 
     const fetchGameModes = async (): Promise<{ id: string; name: string }[]> => {
         const response = await axios.get(`${baseAPIURL}/gameMode/getAll`);
         return response.data;
     }
-    const queryClient = useQueryClient()
+    
 
     const query = useQuery<{ id: string; name: string }[]>({
         queryKey: ['gameModes'],
@@ -62,6 +62,7 @@ const NewGame = () => {
     return (
         <View>
             <Text>Nouvelle partie</Text>
+            <Text>{game.id}</Text>
             {query.isLoading && <Text>Chargement...</Text>}
             {query.isError && <Text>Erreur de chargement</Text>}
             {query.data && query.data.map((mode) => (

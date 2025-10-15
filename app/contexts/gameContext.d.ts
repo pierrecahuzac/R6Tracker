@@ -21,7 +21,8 @@ export interface Round {
   assists: number;
   disconnected: boolean;
   points: number;
-  result: string
+  result: string;
+  isFinished: boolean
 }
 
 export interface Game {
